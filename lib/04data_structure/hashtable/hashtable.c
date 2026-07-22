@@ -10,6 +10,7 @@ enum {
 
 static TypeDesc hash_table_storage_type(TypeDesc type)
 {
+	//由于我们自己维护Drop,故让Vec将存储值当作普通值
 	return (TypeDesc){
 		.size = type.size,
 		.drop = NULL,
