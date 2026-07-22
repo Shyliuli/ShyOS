@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "test01-arch-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+shyos-arch = { path = "../../lib/00arch" }
+
+[profile.release]
+panic = "abort"

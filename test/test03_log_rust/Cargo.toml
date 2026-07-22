@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "test03-log-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+shyos-log = { path = "../../lib/01log" }
+
+[profile.release]
+panic = "abort"

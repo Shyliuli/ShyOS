@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "test07-basic-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+shyos-basic = { path = "../../lib/03basic" }
+
+[profile.release]
+panic = "abort"

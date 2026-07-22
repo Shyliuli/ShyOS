@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "test05-core-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+shyos-core = { path = "../../lib/02core" }
+
+[profile.release]
+panic = "abort"

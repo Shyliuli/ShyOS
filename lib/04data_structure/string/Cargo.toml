@@ -1,0 +1,17 @@
+# 实现string.h中需要alloc实现的能力
+# for rust:对&Cstr和&[u8]实现
+
+[package]
+name = "shyos_string"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+string_no_alloc = { path = "../../02core/string_no_alloc" }
+shyos-vec = { path = "../vec" }
+shyos-result = { path = "../../03basic/result" }

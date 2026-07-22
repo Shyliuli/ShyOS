@@ -1,0 +1,17 @@
+[workspace]
+
+[package]
+name = "test12-data-structure-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+shyos-data-structure = { path = "../../lib/04data_structure" }
+
+[profile.release]
+panic = "abort"

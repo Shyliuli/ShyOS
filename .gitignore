@@ -1,0 +1,23 @@
+# Build outputs
+/target/
+/**/target/
+*.o
+*.a
+*.elf
+*.bin
+*.map
+*.layer.ld
+*.norust.layer.ld
+
+# Generated tooling outputs
+/compile_commands.json
+/tools/layer_dag.html
+/tools/layer_dag_stress.html
+
+# Local caches
+/.cache/
+__pycache__/
+*.py[cod]
+
+# Editor-local configuration
+/.vscode/
