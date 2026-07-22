@@ -112,6 +112,7 @@ name = "shyos-data-structure"
 version = "0.0.0"
 dependencies = [
  "shyos-basic",
+ "shyos-hashtable",
  "shyos-vec",
  "shyos_string",
 ]
@@ -119,6 +120,15 @@ dependencies = [
 [[package]]
 name = "shyos-error"
 version = "0.0.0"
+
+[[package]]
+name = "shyos-hashtable"
+version = "0.0.0"
+dependencies = [
+ "shyos-obj",
+ "shyos-result",
+ "shyos-vec",
+]
 
 [[package]]
 name = "shyos-log"

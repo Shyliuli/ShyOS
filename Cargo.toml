@@ -23,6 +23,7 @@ members = [
     "lib/04data_structure",
     "lib/04data_structure/string",
     "lib/04data_structure/vec",
+    "lib/04data_structure/hashtable",
     "lib/*/rust_image",
     "lib/alloc",
     "lib/stdio",

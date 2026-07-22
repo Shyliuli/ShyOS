@@ -1,6 +1,7 @@
 #include "alloc.h"
 #include "obj.h"
 #include "early_stdio.h"
+#include "hashtable.h"
 #include "string.h"
 #include "vec.h"
 
@@ -213,6 +214,113 @@ static i32 test_result_string_vec(void)
 	return 0;
 }
 
+static usize hash_u32(const void *value)
+{
+	return *(const u32 *)value;
+}
+
+static bool eq_u32(const void *left, const void *right)
+{
+	return *(const u32 *)left == *(const u32 *)right;
+}
+
+static i32 test_hashtable(void)
+{
+	ResultHashTable table_result;
+	ResultString first_result;
+	ResultString second_result;
+	ResultString third_result;
+	ResultString fourth_result;
+	ResultString replacement_result;
+	ResultHashTable clone_result;
+	HashTable table;
+	HashTable clone;
+	String first;
+	String second;
+	String third;
+	String fourth;
+	String replacement;
+	String removed;
+	const String *value;
+	u32 key_one = 1;
+	u32 key_nine = 9;
+	u32 key_seventeen = 17;
+	u32 key_twenty_five = 25;
+
+	table_result = hash_table_new(
+		8,
+		Type(u32),
+		OwnedType(String),
+		hash_u32,
+		eq_u32
+	);
+	if (HashTable_is_err(&table_result))
+		return -1;
+	table = HashTable_unwrap(&table_result);
+
+	first_result = string_new("one");
+	second_result = string_new("nine");
+	third_result = string_new("seventeen");
+	fourth_result = string_new("twenty-five");
+	replacement_result = string_new("ONE");
+	if (String_is_err(&first_result) ||
+	    String_is_err(&second_result) ||
+	    String_is_err(&third_result) ||
+	    String_is_err(&fourth_result) ||
+	    String_is_err(&replacement_result))
+		return -1;
+	first = String_unwrap(&first_result);
+	second = String_unwrap(&second_result);
+	third = String_unwrap(&third_result);
+	fourth = String_unwrap(&fourth_result);
+	replacement = String_unwrap(&replacement_result);
+
+	if (hash_table_insert(&table, &key_one, &first) != 0 ||
+	    hash_table_insert(&table, &key_nine, &second) != 0 ||
+	    hash_table_insert(&table, &key_seventeen, &third) != 0)
+		return -1;
+	value = hash_table_get(&table, &key_seventeen);
+	if (value == NULL || strcmp(string_as_ptr(value), "seventeen") != 0)
+		return -1;
+
+	if (hash_table_remove(&table, &key_nine, NULL) != 0)
+		return -1;
+	value = hash_table_get(&table, &key_seventeen);
+	if (value == NULL || strcmp(string_as_ptr(value), "seventeen") != 0)
+		return -1;
+
+	if (hash_table_insert(&table, &key_twenty_five, &fourth) != 0)
+		return -1;
+	if (hash_table_insert(&table, &key_one, &replacement) != 0)
+		return -1;
+	value = hash_table_get(&table, &key_one);
+	if (value == NULL || strcmp(string_as_ptr(value), "ONE") != 0)
+		return -1;
+
+	clone_result = hash_table_clone(&table);
+	if (HashTable_is_err(&clone_result))
+		return -1;
+	clone = HashTable_unwrap(&clone_result);
+	value = hash_table_get(&clone, &key_one);
+	if (value == NULL || strcmp(string_as_ptr(value), "ONE") != 0 ||
+	    value->raw.data ==
+		    ((const String *)hash_table_get(&table, &key_one))->raw.data)
+		return -1;
+	hash_table_drop(&clone);
+
+	if (hash_table_remove(&table, &key_seventeen, &removed) != 0 ||
+	    strcmp(string_as_ptr(&removed), "seventeen") != 0)
+		return -1;
+	string_drop(&removed);
+
+	hash_table_clear(&table);
+	if (!hash_table_is_empty(&table) ||
+	    hash_table_contains(&table, &key_one))
+		return -1;
+	hash_table_drop(&table);
+	return 0;
+}
+
 i32 main(void)
 {
 	var inferred = 42;
@@ -222,7 +330,8 @@ i32 main(void)
 
 	if (inferred != 42 || test_copy_vec() != 0 ||
 	    test_string_edit() != 0 || test_owned_nested_vec() != 0 ||
-	    test_let_cleanup() != 0 || test_result_string_vec() != 0)
+	    test_let_cleanup() != 0 || test_result_string_vec() != 0 ||
+	    test_hashtable() != 0)
 		return 1;
 
 	block = malloc(32);

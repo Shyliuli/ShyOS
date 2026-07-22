@@ -9,7 +9,9 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 use shyos_data_structure::simple_alloc::HeapBox;
 use shyos_data_structure::string::CString;
 use shyos_data_structure::string_no_alloc::MemExt;
-use shyos_data_structure::{error::ERROR_NO_VALUE, CResult, CVec};
+use shyos_data_structure::{
+    error::ERROR_NO_VALUE, hashtable::CHashTable, CResult, CVec,
+};
 
 static DROP_COUNT: AtomicUsize = AtomicUsize::new(0);
 
@@ -72,6 +74,51 @@ pub extern "C" fn main() -> i32 {
     };
     if from_slice.as_slice() != [21, 22, 23] {
         return 12;
+    }
+
+    let mut table = match CHashTable::<u32, String>::with_capacity(8) {
+        CResult::Ok(table) => table,
+        CResult::Err(_) => return 13,
+    };
+    if table.insert(1, String::from("one")).is_err()
+        || table.insert(9, String::from("nine")).is_err()
+        || table.insert(17, String::from("seventeen")).is_err()
+    {
+        return 14;
+    }
+    if table.len() != 3
+        || table.get(&17).map(String::as_str) != Some("seventeen")
+    {
+        return 15;
+    }
+    if let Some(value) = table.get_mut(&1) {
+        value.push_str("-updated");
+    } else {
+        return 16;
+    }
+    if table.get(&1).map(String::as_str) != Some("one-updated") {
+        return 17;
+    }
+    if table.remove(&9) != CResult::Ok(String::from("nine")) {
+        return 18;
+    }
+    if table.contains_key(&17) != true || table.contains_key(&9) {
+        return 19;
+    }
+    table.clear();
+    if !table.is_empty() {
+        return 20;
+    }
+    let initial_capacity = table.capacity();
+    for key in 0..12 {
+        if table.insert(key, String::from("value")).is_err() {
+            return 21;
+        }
+    }
+    if table.capacity() <= initial_capacity
+        || (0..12).any(|key| table.get(&key).map(String::as_str) != Some("value"))
+    {
+        return 22;
     }
 
     let mut reserved = match CVec::with_capacity(3) {

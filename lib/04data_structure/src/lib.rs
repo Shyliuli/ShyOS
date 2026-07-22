@@ -8,5 +8,6 @@ pub use shyos_basic::{
     alloc, arch, c_try, core, error, log, obj, panic, print, result, simple_alloc, string_no_alloc,
     CResult,
 };
+pub use shyos_hashtable as hashtable;
 pub use shyos_string as string;
 pub use shyos_vec::{self, CVec};

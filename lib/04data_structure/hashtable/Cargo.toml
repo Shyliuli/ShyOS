@@ -1,0 +1,16 @@
+# Runtime-generic C hashtable with a no_std Rust wrapper.
+
+[package]
+name = "shyos-hashtable"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+shyos-obj = { path = "../../03basic/obj" }
+shyos-result = { path = "../../03basic/result" }
+shyos-vec = { path = "../vec" }
