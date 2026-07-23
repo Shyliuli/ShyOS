@@ -15,3 +15,4 @@ crate-type = ["rlib"]
 shyos-log = { path = "../01log" }
 shyos-error = { path = "error" }
 string_no_alloc = { path = "string_no_alloc" }
+shyos-trap = { path = "trap" }

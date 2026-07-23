@@ -5,4 +5,5 @@
 依赖 `01log`，提供不需要 allocator 的基础能力：
 
 - `error`：Linux 通用 errno 数值、完整可读别名与 `ERROR_NO_VALUE` 扩展；
-- `string_no_alloc`：不分配内存的字符串和内存操作。
+- `string_no_alloc`：不分配内存的字符串和内存操作；
+- `trap`：表驱动 trap 分发（异常 / 中断 cause / PLIC external），C ABI 见 `trap.h`。

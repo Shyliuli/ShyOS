@@ -16,6 +16,7 @@ members = [
     "lib/02core",
     "lib/02core/error",
     "lib/02core/string_no_alloc",
+    "lib/02core/trap",
     "lib/03basic",
     "lib/03basic/simple_alloc",
     "lib/03basic/obj",

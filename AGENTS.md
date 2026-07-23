@@ -236,7 +236,7 @@ Rust 不使用 `.layer.ld` 表达 crate 依赖。每层提供一个轻量 facade
 
 - `shyos-arch` 位于 `00arch`，重新导出 board、irq、rand、uart、shutdown。
 - `shyos-log` 位于 `01log`，重新导出 shyos-arch、print、panic。
-- `shyos-core` 位于 `02core`，重新导出 shyos-log、error、string_no_alloc。
+- `shyos-core` 位于 `02core`，重新导出 shyos-log、error、string_no_alloc、trap。
 - `shyos-basic` 位于 `03basic`，重新导出 shyos-core、obj、result、alloc。
 - `shyos-data-structure` 位于 `04data_structure`，重新导出 shyos-basic、vec、
   string。

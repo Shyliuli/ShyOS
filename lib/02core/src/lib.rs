@@ -7,4 +7,5 @@ pub use shyos_error as error;
 pub use shyos_log as log;
 pub use shyos_log::arch;
 pub use shyos_log::{panic, print};
+pub use shyos_trap as trap;
 pub use string_no_alloc;
