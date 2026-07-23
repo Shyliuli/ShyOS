@@ -46,6 +46,7 @@ version = "0.0.0"
 dependencies = [
  "shyos-error",
  "shyos-log",
+ "shyos-trap",
  "string_no_alloc",
 ]
 
@@ -70,6 +71,14 @@ version = "0.0.0"
 [[package]]
 name = "shyos-stdio"
 version = "0.0.0"
+
+[[package]]
+name = "shyos-trap"
+version = "0.0.0"
+dependencies = [
+ "irq",
+ "panic",
+]
 
 [[package]]
 name = "string_no_alloc"

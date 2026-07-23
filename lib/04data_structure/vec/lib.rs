@@ -8,13 +8,13 @@ use core::ops::{Deref, DerefMut};
 use core::ptr::{self, NonNull};
 use core::slice;
 use shyos_obj::TypeDesc;
+use shyos_rawbuf::RawBuf;
 use shyos_result::{CResult, ERROR_INVALID_ARGUMENT, ERROR_NO_VALUE, ERROR_OUT_OF_MEMORY};
 
 #[repr(C)]
 #[doc(hidden)]
 pub struct RawVec {
-    pub data: *mut c_void,
-    pub cap: usize,
+    pub raw: RawBuf,
     pub size: usize,
     pub elem: TypeDesc,
 }
@@ -106,7 +106,7 @@ impl<T> CVec<T> {
     }
 
     pub fn capacity(&self) -> usize {
-        self.raw.cap
+        self.raw.raw.cap
     }
 
     pub fn is_empty(&self) -> bool {
@@ -114,18 +114,18 @@ impl<T> CVec<T> {
     }
 
     pub fn as_ptr(&self) -> *const T {
-        if self.raw.data.is_null() {
+        if self.raw.raw.data.is_null() {
             NonNull::<T>::dangling().as_ptr()
         } else {
-            self.raw.data.cast::<T>()
+            self.raw.raw.data.cast::<T>()
         }
     }
 
     pub fn as_mut_ptr(&mut self) -> *mut T {
-        if self.raw.data.is_null() {
+        if self.raw.raw.data.is_null() {
             NonNull::<T>::dangling().as_ptr()
         } else {
-            self.raw.data.cast::<T>()
+            self.raw.raw.data.cast::<T>()
         }
     }
 
@@ -166,8 +166,11 @@ impl<T> CVec<T> {
 
         Self {
             raw: RawVec {
-                data: data.cast(),
-                cap,
+                raw: RawBuf {
+                    data: data.cast(),
+                    cap,
+                    elem_size: size_of::<T>(),
+                },
                 size: len,
                 elem: Self::type_desc(),
             },
@@ -177,12 +180,12 @@ impl<T> CVec<T> {
 
     pub fn into_raw_parts(self) -> (*mut T, usize, usize) {
         let this = ManuallyDrop::new(self);
-        let data = if this.raw.data.is_null() {
+        let data = if this.raw.raw.data.is_null() {
             NonNull::<T>::dangling().as_ptr()
         } else {
-            this.raw.data.cast::<T>()
+            this.raw.raw.data.cast::<T>()
         };
-        (data, this.raw.size, this.raw.cap)
+        (data, this.raw.size, this.raw.raw.cap)
     }
 
     pub fn reserve(&mut self, additional: usize) -> CResult<()> {

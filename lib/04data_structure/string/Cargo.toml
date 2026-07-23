@@ -13,5 +13,5 @@ crate-type = ["rlib"]
 
 [dependencies]
 string_no_alloc = { path = "../../02core/string_no_alloc" }
-shyos-vec = { path = "../vec" }
+shyos-rawbuf = { path = "../rawbuf" }
 shyos-result = { path = "../../03basic/result" }

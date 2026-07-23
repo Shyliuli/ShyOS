@@ -10,7 +10,8 @@ use shyos_data_structure::simple_alloc::HeapBox;
 use shyos_data_structure::string::CString;
 use shyos_data_structure::string_no_alloc::MemExt;
 use shyos_data_structure::{
-    error::ERROR_NO_VALUE, hashtable::CHashSet, hashtable::CHashTable, CResult, CVec,
+    error::ERROR_NO_VALUE, hashtable::CHashSet, hashtable::CHashTable, CDeque,
+    CLinkedList, CQueue, CRingBuffer, CResult, CStack, CVec,
 };
 
 static DROP_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -203,6 +204,124 @@ pub extern "C" fn main() -> i32 {
     }
     if DROP_COUNT.load(Ordering::SeqCst) != 4 {
         return 25;
+    }
+
+    let mut deque = match CDeque::new() {
+        CResult::Ok(deque) => deque,
+        CResult::Err(_) => return 56,
+    };
+    if deque.push_back(2u32).is_err()
+        || deque.push_front(1).is_err()
+        || deque.push_back(3).is_err()
+        || !deque.iter().copied().eq([1, 2, 3])
+        || deque.pop_front() != CResult::Ok(1)
+        || deque.pop_back() != CResult::Ok(3)
+    {
+        return 57;
+    }
+    let mut wrapped = match CDeque::with_capacity(3) {
+        CResult::Ok(deque) => deque,
+        CResult::Err(_) => return 72,
+    };
+    for value in 0..5 {
+        if wrapped.push_back(value).is_err() {
+            return 73;
+        }
+    }
+    if wrapped.pop_front() != CResult::Ok(0) || wrapped.pop_front() != CResult::Ok(1) {
+        return 74;
+    }
+    for value in 5..8 {
+        if wrapped.push_back(value).is_err() {
+            return 75;
+        }
+    }
+    if !wrapped.iter().copied().eq(2..8) {
+        return 76;
+    }
+
+    let mut stack = match CStack::new() {
+        CResult::Ok(stack) => stack,
+        CResult::Err(_) => return 58,
+    };
+    if stack.push(1u32).is_err()
+        || stack.push(2).is_err()
+        || stack.peek() != Some(&2)
+        || stack.pop() != CResult::Ok(2)
+    {
+        return 59;
+    }
+
+    let mut queue = match CQueue::new() {
+        CResult::Ok(queue) => queue,
+        CResult::Err(_) => return 60,
+    };
+    if queue.push(1u32).is_err()
+        || queue.push(2).is_err()
+        || queue.front() != Some(&1)
+        || queue.back() != Some(&2)
+        || queue.pop() != CResult::Ok(1)
+    {
+        return 61;
+    }
+
+    {
+        let before = DROP_COUNT.load(Ordering::SeqCst);
+        let mut buffer = match CRingBuffer::new(2) {
+            CResult::Ok(buffer) => buffer,
+            CResult::Err(_) => return 62,
+        };
+        if buffer.push(DropProbe(5)).is_err()
+            || buffer.push(DropProbe(6)).is_err()
+            || buffer.push(DropProbe(7)).is_err()
+            || buffer.len() != 2
+            || buffer.front().map(|probe| probe.0) != Some(6)
+            || buffer.back().map(|probe| probe.0) != Some(7)
+            || DROP_COUNT.load(Ordering::SeqCst) != before + 1
+        {
+            return 63;
+        }
+        match buffer.pop() {
+            CResult::Ok(probe) => drop(probe),
+            CResult::Err(_) => return 64,
+        }
+        drop(buffer);
+        if DROP_COUNT.load(Ordering::SeqCst) != before + 3 {
+            return 65;
+        }
+    }
+
+    let mut list = match CLinkedList::with_capacity(3) {
+        CResult::Ok(list) => list,
+        CResult::Err(_) => return 66,
+    };
+    let first = match list.push_back(String::from("first")) {
+        CResult::Ok(index) => index,
+        CResult::Err(_) => return 67,
+    };
+    let second = match list.push_back(String::from("second")) {
+        CResult::Ok(index) => index,
+        CResult::Err(_) => return 68,
+    };
+    if list.first_index() != Some(first)
+        || list.last_index() != Some(second)
+        || list.get(second).map(String::as_str) != Some("second")
+        || list.remove(first) != CResult::Ok(String::from("first"))
+    {
+        return 69;
+    }
+    let reused = match list.push_front(String::from("replacement")) {
+        CResult::Ok(index) => index,
+        CResult::Err(_) => return 70,
+    };
+    if reused != first
+        || list.front().map(String::as_str) != Some("replacement")
+        || !list
+            .iter()
+            .map(|(_, value)| value.as_str())
+            .eq(["replacement", "second"])
+    {
+        return 71;
     }
 
     let mut owned = match CString::with_capacity(8) {

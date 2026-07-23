@@ -2,8 +2,8 @@
 #define SHYOS_HASHTABLE_H
 
 #include "obj.h"
+#include "rawbuf.h"
 #include "result.h"
-#include "vec.h"
 
 typedef usize (*hash_fn)(const void *key);
 typedef bool (*eq_fn)(const void *left, const void *right);
@@ -23,14 +23,9 @@ enum {
 
 typedef struct HashTable HashTable;
 struct HashTable {
-	/*
-	 * The three Vec values use the same index. keys and values are raw
-	 * storage; HashTable manages their object lifetimes using key_type and
-	 * value_type according to states.
-	 */
-	Vec keys;
-	Vec values;
-	Vec states;
+	RawBuf keys;
+	RawBuf values;
+	RawBuf states;
 	usize len;
 	TypeDesc key_type;
 	TypeDesc value_type;

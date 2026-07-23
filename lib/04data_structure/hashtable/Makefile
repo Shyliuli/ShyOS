@@ -17,14 +17,14 @@ $(OUT_DIR):
 $(HASHTABLE_C_OBJ): hashtable.c hashtable.h \
 		$(SHYOS_ROOT)/lib/03basic/obj/obj.h \
 		$(SHYOS_ROOT)/lib/03basic/result/result.h \
-		$(SHYOS_ROOT)/lib/04data_structure/vec/vec.h \
+		$(SHYOS_ROOT)/lib/04data_structure/rawbuf/rawbuf.h \
 		$(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c -o $@ hashtable.c
 
 $(HASHSET_C_OBJ): hashset.c hashset.h hashtable.h \
 		$(SHYOS_ROOT)/lib/03basic/obj/obj.h \
 		$(SHYOS_ROOT)/lib/03basic/result/result.h \
-		$(SHYOS_ROOT)/lib/04data_structure/vec/vec.h \
+		$(SHYOS_ROOT)/lib/04data_structure/rawbuf/rawbuf.h \
 		$(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c -o $@ hashset.c
 

@@ -8,6 +8,12 @@ pub use shyos_basic::{
     alloc, arch, c_try, core, error, log, obj, panic, print, result, simple_alloc, string_no_alloc,
     CResult,
 };
+pub use shyos_deque::{self as deque, CDeque};
 pub use shyos_hashtable::{self as hashtable, CHashSet, CHashTable};
+pub use shyos_linked_list::{self as linked_list, CLinkedList};
+pub use shyos_queue::{self as queue, CQueue};
+pub use shyos_rawbuf as rawbuf;
+pub use shyos_ringbuffer::{self as ringbuffer, CRingBuffer};
+pub use shyos_stack::{self as stack, CStack};
 pub use shyos_string as string;
 pub use shyos_vec::{self, CVec};

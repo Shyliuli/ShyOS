@@ -15,8 +15,7 @@ $(OUT_DIR):
 	mkdir -p $@
 
 $(STRING_C_OBJ): string.c string.h \
-		$(SHYOS_ROOT)/lib/04data_structure/vec/vec.h \
-		$(SHYOS_ROOT)/lib/03basic/obj/obj.h \
+		$(SHYOS_ROOT)/lib/04data_structure/rawbuf/rawbuf.h \
 		$(SHYOS_ROOT)/lib/03basic/result/result.h \
 		$(SHYOS_ROOT)/lib/alloc/alloc.h \
 		$(SHYOS_CONFIG_STATE) | $(OUT_DIR)

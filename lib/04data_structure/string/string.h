@@ -1,18 +1,17 @@
 #ifndef SHYOS_STRING_H
 #define SHYOS_STRING_H
 
+#include "rawbuf.h"
 #include "result.h"
 #include "string_noalloc.h"
-#include "vec.h"
 
-/* libc 风格、需要 allocator 的字符串函数。 */
 char *strdup(const char *str);
 char *strndup(const char *str, usize max_len);
 
 typedef struct String String;
 struct String {
-	/* raw.size 包含末尾 NUL；全零表示 moved-from/empty。 */
-	Vec raw;
+	RawBuf raw;
+	usize len;
 };
 
 typedef bool (*string_retain_fn)(u8 value, void *context);

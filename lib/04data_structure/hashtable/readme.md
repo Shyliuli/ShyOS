@@ -12,9 +12,9 @@ Each bucket uses linear probing and has one of these states:
 - `HASH_BUCKET_EMPTY`
 - `HASH_BUCKET_DELETED`
 
-Keys, values, and states are stored in parallel Vec allocations. The key and
-value Vec values provide raw storage; `HashTable` manages object lifetimes
-using the TypeDesc values passed to `hash_table_new`.
+Keys, values, and states are stored in parallel RawBuf allocations.
+`HashTable` alone manages key and value lifetimes using the TypeDesc values
+passed to `hash_table_new`; RawBuf only owns allocation and capacity.
 
 On successful `hash_table_insert`, the table takes ownership of the key and
 value. Inserting an existing key drops the new key, drops the old value, and

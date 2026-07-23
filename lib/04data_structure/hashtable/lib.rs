@@ -6,10 +6,8 @@ use core::marker::PhantomData;
 use core::mem::{align_of, size_of, ManuallyDrop, MaybeUninit};
 use core::ptr;
 use shyos_obj::TypeDesc;
-use shyos_result::{
-    CResult, ERROR_INVALID_ARGUMENT, ERROR_NO_VALUE, ERROR_OUT_OF_MEMORY,
-};
-use shyos_vec::RawVec;
+use shyos_rawbuf::RawBuf;
+use shyos_result::{CResult, ERROR_INVALID_ARGUMENT, ERROR_NO_VALUE, ERROR_OUT_OF_MEMORY};
 
 const HASH_TABLE_MIN_CAPACITY: usize = 8;
 const HASH_TABLE_OK: i32 = 0;
@@ -25,9 +23,9 @@ type EqFn = unsafe extern "C" fn(*const c_void, *const c_void) -> bool;
 #[repr(C)]
 #[doc(hidden)]
 pub struct RawHashTable {
-    pub keys: RawVec,
-    pub values: RawVec,
-    pub states: RawVec,
+    pub keys: RawBuf,
+    pub values: RawBuf,
+    pub states: RawBuf,
     pub len: usize,
     pub key_type: TypeDesc,
     pub value_type: TypeDesc,
@@ -60,23 +58,13 @@ unsafe extern "C" {
     fn c_hash_table_capacity(table: *const RawHashTable) -> usize;
 
     #[link_name = "hash_table_insert"]
-    fn c_hash_table_insert(
-        table: *mut RawHashTable,
-        key: *mut c_void,
-        value: *mut c_void,
-    ) -> i32;
+    fn c_hash_table_insert(table: *mut RawHashTable, key: *mut c_void, value: *mut c_void) -> i32;
 
     #[link_name = "hash_table_get"]
-    fn c_hash_table_get(
-        table: *const RawHashTable,
-        key: *const c_void,
-    ) -> *const c_void;
+    fn c_hash_table_get(table: *const RawHashTable, key: *const c_void) -> *const c_void;
 
     #[link_name = "hash_table_get_mut"]
-    fn c_hash_table_get_mut(
-        table: *mut RawHashTable,
-        key: *const c_void,
-    ) -> *mut c_void;
+    fn c_hash_table_get_mut(table: *mut RawHashTable, key: *const c_void) -> *mut c_void;
 
     #[link_name = "hash_table_remove"]
     fn c_hash_table_remove(
@@ -156,10 +144,7 @@ unsafe extern "C" fn hash_key<K: Hash>(key: *const c_void) -> usize {
     hasher.finish() as usize
 }
 
-unsafe extern "C" fn eq_key<K: Eq>(
-    left: *const c_void,
-    right: *const c_void,
-) -> bool {
+unsafe extern "C" fn eq_key<K: Eq>(left: *const c_void, right: *const c_void) -> bool {
     unsafe { &*left.cast::<K>() == &*right.cast::<K>() }
 }
 
@@ -263,22 +248,13 @@ impl<K: Hash + Eq, V> CHashTable<K, V> {
     }
 
     pub fn get(&self, key: &K) -> Option<&V> {
-        let value = unsafe {
-            c_hash_table_get(
-                &self.raw,
-                (key as *const K).cast::<c_void>(),
-            )
-        };
+        let value = unsafe { c_hash_table_get(&self.raw, (key as *const K).cast::<c_void>()) };
         unsafe { value.cast::<V>().as_ref() }
     }
 
     pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
-        let value = unsafe {
-            c_hash_table_get_mut(
-                &mut self.raw,
-                (key as *const K).cast::<c_void>(),
-            )
-        };
+        let value =
+            unsafe { c_hash_table_get_mut(&mut self.raw, (key as *const K).cast::<c_void>()) };
         unsafe { value.cast::<V>().as_mut() }
     }
 
@@ -355,22 +331,13 @@ impl<K: Hash + Eq> CHashSet<K> {
     }
 
     pub fn contains(&self, value: &K) -> bool {
-        unsafe {
-            c_hash_set_contains(
-                &self.raw,
-                (value as *const K).cast::<c_void>(),
-            )
-        }
+        unsafe { c_hash_set_contains(&self.raw, (value as *const K).cast::<c_void>()) }
     }
 
     pub fn insert(&mut self, value: K) -> CResult<bool> {
         let mut value = ManuallyDrop::new(value);
-        let status = unsafe {
-            c_hash_set_insert(
-                &mut self.raw,
-                (&mut *value as *mut K).cast::<c_void>(),
-            )
-        };
+        let status =
+            unsafe { c_hash_set_insert(&mut self.raw, (&mut *value as *mut K).cast::<c_void>()) };
         match status {
             HASH_SET_INSERTED => CResult::ok(true),
             HASH_SET_ALREADY_PRESENT => CResult::ok(false),
@@ -383,10 +350,7 @@ impl<K: Hash + Eq> CHashSet<K> {
 
     pub fn remove(&mut self, value: &K) -> bool {
         unsafe {
-            c_hash_set_remove(
-                &mut self.raw,
-                (value as *const K).cast::<c_void>(),
-            ) == HASH_TABLE_OK
+            c_hash_set_remove(&mut self.raw, (value as *const K).cast::<c_void>()) == HASH_TABLE_OK
         }
     }
 

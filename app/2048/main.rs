@@ -203,16 +203,12 @@ pub unsafe extern "C" fn update(state: *mut State, key: Key) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn index(
-    state: *mut State,
-    i: usize,
-    j: usize,
-) -> *mut CResult<i32> {
+pub unsafe extern "C" fn index(state: *mut State, i: usize, j: usize) -> *mut CResult<i32> {
     unsafe { (&mut *state).index_mut(i, j) }
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn init()->CResult<State>{
+pub unsafe extern "C" fn init() -> CResult<State> {
     State::init()
 }
 

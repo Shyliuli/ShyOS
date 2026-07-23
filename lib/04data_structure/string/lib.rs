@@ -4,15 +4,16 @@ use core::borrow::Borrow;
 use core::ffi::{c_char, c_void, CStr};
 use core::fmt;
 use core::ops::Deref;
+use shyos_rawbuf::RawBuf;
 use shyos_result::{CResult, ERROR_INVALID_ARGUMENT, ERROR_NO_VALUE, ERROR_OUT_OF_MEMORY};
-use shyos_vec::RawVec;
 
 type StringRetainFn = unsafe extern "C" fn(u8, *mut c_void) -> bool;
 pub use string_no_alloc::*;
 
 #[repr(C)]
-struct RawString {
-    raw: RawVec,
+pub struct RawString {
+    pub raw: RawBuf,
+    pub len: usize,
 }
 
 unsafe extern "C" {

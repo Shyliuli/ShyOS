@@ -13,6 +13,12 @@ crate-type = ["rlib"]
 
 [dependencies]
 shyos-basic = { path = "../03basic" }
+shyos-rawbuf = { path = "rawbuf" }
 shyos_string = { path = "string" }
 shyos-vec = { path = "vec" }
 shyos-hashtable = { path = "hashtable" }
+shyos-deque = { path = "deque" }
+shyos-ringbuffer = { path = "ringbuffer" }
+shyos-stack = { path = "stack" }
+shyos-queue = { path = "queue" }
+shyos-linked-list = { path = "linked_list" }

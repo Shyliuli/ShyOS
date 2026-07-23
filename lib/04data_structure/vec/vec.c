@@ -3,11 +3,9 @@
 #include "alloc.h"
 #include "string_noalloc.h"
 
-enum { VEC_INIT_CAP = 5 };
-
 static void *vec_ptr_add(const Vec *v, usize i)
 {
-	return (void *)((char *)v->data + i * v->elem.size);
+	return raw_buf_get(&v->raw, i);
 }
 
 static void vec_drop_item(Vec *v, usize i)
@@ -17,22 +15,26 @@ static void vec_drop_item(Vec *v, usize i)
 
 ResultVec vec_new(TypeDesc elem)
 {
+	ResultRawBuf raw;
+	Vec vec;
+
 	if (elem.size == 0) {
 		return VecErr(ERROR_INVALID_ARGUMENT);
 	}
-	return VecOk((Vec){
-		.data = NULL,
-		.cap = 0,
-		.size = 0,
-		.elem = elem,
-	});
+	raw = raw_buf_new(elem.size);
+	if (RawBuf_is_err(&raw)) {
+		return VecErr(RawBuf_error(&raw));
+	}
+	vec.raw = RawBuf_unwrap(&raw);
+	vec.size = 0;
+	vec.elem = elem;
+	return VecOk(vec);
 }
 
 Vec vec_from_raw_parts(void *data, usize size, usize cap, TypeDesc elem)
 {
 	return (Vec){
-		.data = data,
-		.cap = cap,
+		.raw = raw_buf_from_raw_parts(data, cap, elem.size),
 		.size = size,
 		.elem = elem,
 	};
@@ -45,7 +47,7 @@ usize vec_len(const Vec *v)
 
 usize vec_capacity(const Vec *v)
 {
-	return v->cap;
+	return v->raw.cap;
 }
 
 bool vec_is_empty(const Vec *v)
@@ -56,43 +58,12 @@ bool vec_is_empty(const Vec *v)
 i32 vec_reserve(Vec *v, usize additional)
 {
 	usize required;
-	usize new_cap;
-	void *new_data;
 
 	if (additional > (usize)-1 - v->size) {
 		return -1;
 	}
 	required = v->size + additional;
-	if (required <= v->cap) {
-		return 0;
-	}
-	new_cap = v->cap == 0 ? (usize)VEC_INIT_CAP : v->cap;
-	while (new_cap < required) {
-		usize growth = new_cap / 2;
-		if (growth == 0) {
-			growth = 1;
-		}
-		if (new_cap > (usize)-1 - growth) {
-			return -1;
-		}
-		new_cap += growth;
-	}
-	if (new_cap > (usize)-1 / v->elem.size) {
-		return -1;
-	}
-	new_data = malloc(new_cap * v->elem.size);
-	if (new_data == NULL) {
-		return -1;
-	}
-	if (v->size != 0) {
-		memcpy(new_data, v->data, v->size * v->elem.size);
-	}
-	if (v->data != NULL) {
-		free(v->data);
-	}
-	v->data = new_data;
-	v->cap = new_cap;
-	return 0;
+	return raw_buf_reserve(&v->raw, required);
 }
 
 static i32 vec_insert_impl(Vec *v, usize index, const void *data, bool clear_source)
@@ -140,6 +111,19 @@ i32 vec_insert_raw(Vec *v, usize index, const void *data)
 void *vec_get(const Vec *v, usize i)
 {
 	return vec_ptr_add(v, i);
+}
+
+i32 vec_set(Vec *v, usize index, void *data)
+{
+	void *slot;
+
+	if (data == NULL || index >= v->size) {
+		return -1;
+	}
+	slot = vec_ptr_add(v, index);
+	obj_drop(v->elem, slot);
+	obj_move(v->elem, slot, data);
+	return 0;
 }
 
 i32 vec_pop(Vec *v, void *out)
@@ -210,9 +194,7 @@ void vec_drop(void *self)
 	Vec *v = self;
 
 	vec_clear(v);
-	if (v->data != NULL) {
-		free(v->data);
-	}
+	raw_buf_drop(&v->raw);
 	memset(v, 0, sizeof(*v));
 }
 
@@ -240,7 +222,7 @@ void *vec_clone_obj(const void *source_ptr)
 	}
 	if (is_copy(source->elem)) {
 		if (source->size != 0) {
-			memcpy(copy->data, source->data,
+			memcpy(copy->raw.data, source->raw.data,
 				source->size * source->elem.size);
 		}
 		copy->size = source->size;
@@ -248,6 +230,7 @@ void *vec_clone_obj(const void *source_ptr)
 	}
 	for (i = 0; i < source->size; ++i) {
 		void *element = obj_clone(source->elem, vec_ptr_add(source, i));
+
 		if (element == NULL) {
 			vec_drop(copy);
 			free(copy);

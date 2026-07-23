@@ -14,3 +14,4 @@ crate-type = ["rlib"]
 [dependencies]
 shyos-obj = { path = "../../03basic/obj" }
 shyos-result = { path = "../../03basic/result" }
+shyos-rawbuf = { path = "../rawbuf" }

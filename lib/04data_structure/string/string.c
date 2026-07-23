@@ -31,23 +31,23 @@ char *strndup(const char *str, usize max_len)
 
 ResultString string_new_with_capacity(usize capacity)
 {
-	ResultVec result;
+	ResultRawBuf result;
 	String string;
-	char nul = '\0';
 
 	if (capacity == (usize)-1) {
 		return StringErr(ERROR_INVALID_ARGUMENT);
 	}
-	result = vec_new(Type(char));
-	if (Vec_is_err(&result)) {
-		return StringErr(Vec_error(&result));
+	result = raw_buf_new(sizeof(char));
+	if (RawBuf_is_err(&result)) {
+		return StringErr(RawBuf_error(&result));
 	}
-	string.raw = Vec_unwrap(&result);
-	if (vec_reserve(&string.raw, capacity + 1) != 0 ||
-	    vec_push(&string.raw, &nul) != 0) {
+	string.raw = RawBuf_unwrap(&result);
+	string.len = 0;
+	if (raw_buf_reserve(&string.raw, capacity + 1) != 0) {
 		string_drop(&string);
 		return StringErr(ERROR_OUT_OF_MEMORY);
 	}
+	((char *)string.raw.data)[0] = '\0';
 	return StringOk(string);
 }
 
@@ -68,7 +68,7 @@ ResultString string_new_n(const char *data, usize len)
 		memcpy(string.raw.data, data, len);
 	}
 	((char *)string.raw.data)[len] = '\0';
-	string.raw.size = len + 1;
+	string.len = len;
 	return StringOk(string);
 }
 
@@ -82,79 +82,80 @@ ResultString string_new(const char *cstr)
 
 usize string_len(const String *string)
 {
-	if (string->raw.data == NULL || string->raw.size == 0) {
-		return 0;
-	}
-	return string->raw.size - 1;
+	return string->len;
 }
 
 usize string_capacity(const String *string)
 {
-	if (string->raw.cap == 0) {
-		return 0;
-	}
-	return string->raw.cap - 1;
+	return string->raw.cap == 0 ? 0 : string->raw.cap - 1;
 }
 
 bool string_is_empty(const String *string)
 {
-	return string_len(string) == 0;
+	return string->len == 0;
 }
 
 const char *string_as_ptr(const String *string)
 {
-	if (string->raw.data == NULL || string->raw.size == 0) {
-		return STRING_EMPTY;
-	}
-	return string->raw.data;
+	return string->raw.data == NULL ? STRING_EMPTY : string->raw.data;
 }
 
 i32 string_reserve(String *string, usize additional)
 {
-	if (string->raw.elem.size == 0) {
-		ResultVec result = vec_new(Type(char));
-		if (Vec_is_err(&result)) {
+	usize required;
+	ResultRawBuf result;
+
+	if (additional > (usize)-1 - string->len - 1) {
+		return -1;
+	}
+	if (string->raw.elem_size == 0) {
+		result = raw_buf_new(sizeof(char));
+		if (RawBuf_is_err(&result)) {
 			return -1;
 		}
-		string->raw = Vec_unwrap(&result);
+		string->raw = RawBuf_unwrap(&result);
+		string->len = 0;
 	}
-	if (string->raw.size == 0) {
-		char nul = '\0';
-		if (vec_push(&string->raw, &nul) != 0) {
-			return -1;
-		}
+	required = string->len + additional + 1;
+	if (raw_buf_reserve(&string->raw, required) != 0) {
+		return -1;
 	}
-	return vec_reserve(&string->raw, additional);
+	if (string->len == 0) {
+		((char *)string->raw.data)[0] = '\0';
+	}
+	return 0;
 }
 
 i32 string_push(String *string, u8 value)
 {
+	char *data;
+
 	if (value == '\0') {
 		return -2;
 	}
-	if (string_reserve(string, 1) != 0 ||
-	    vec_insert(&string->raw, string_len(string), &value) != 0) {
+	if (string_reserve(string, 1) != 0) {
 		return -1;
 	}
+	data = string->raw.data;
+	data[string->len++] = value;
+	data[string->len] = '\0';
 	return 0;
 }
 
 i32 string_push_str_n(String *string, const char *value, usize len)
 {
-	usize old_len;
 	char *data;
 
 	if (value == NULL || memchr(value, '\0', len) != NULL ||
 	    string_reserve(string, len) != 0) {
 		return -1;
 	}
-	old_len = string_len(string);
 	data = string->raw.data;
 	if (len != 0) {
-		memcpy(data + old_len, value, len);
+		memcpy(data + string->len, value, len);
 	}
-	data[old_len + len] = '\0';
-	string->raw.size += len;
+	string->len += len;
+	data[string->len] = '\0';
 	return 0;
 }
 
@@ -168,39 +169,39 @@ i32 string_push_str(String *string, const char *value)
 
 i32 string_insert(String *string, usize index, u8 value)
 {
-	usize len = string_len(string);
+	char *data;
 
-	if (index > len) {
+	if (index > string->len) {
 		return -1;
 	}
 	if (value == '\0') {
 		return -2;
 	}
-	if (string_reserve(string, 1) != 0 ||
-	    vec_insert(&string->raw, index, &value) != 0) {
+	if (string_reserve(string, 1) != 0) {
 		return -1;
 	}
+	data = string->raw.data;
+	memmove(data + index + 1, data + index, string->len - index + 1);
+	data[index] = value;
+	string->len++;
 	return 0;
 }
 
 i32 string_insert_str_n(String *string, usize index, const char *value, usize len)
 {
-	usize old_len = string_len(string);
 	char *data;
 
-	if (index > old_len || value == NULL ||
-	    memchr(value, '\0', len) != NULL) {
-		return -1;
-	}
-	if (string_reserve(string, len) != 0) {
+	if (index > string->len || value == NULL ||
+	    memchr(value, '\0', len) != NULL ||
+	    string_reserve(string, len) != 0) {
 		return -1;
 	}
 	data = string->raw.data;
-	memmove(data + index + len, data + index, old_len - index + 1);
+	memmove(data + index + len, data + index, string->len - index + 1);
 	if (len != 0) {
 		memcpy(data + index, value, len);
 	}
-	string->raw.size += len;
+	string->len += len;
 	return 0;
 }
 
@@ -214,23 +215,26 @@ i32 string_insert_str(String *string, usize index, const char *value)
 
 i32 string_remove(String *string, usize index, u8 *out)
 {
-	usize len = string_len(string);
+	char *data;
 
-	if (index >= len || out == NULL) {
+	if (index >= string->len || out == NULL) {
 		return -1;
 	}
-	return vec_remove(&string->raw, index, out);
+	data = string->raw.data;
+	*out = (u8)data[index];
+	memmove(data + index, data + index + 1, string->len - index);
+	string->len--;
+	return 0;
 }
 
 ResultString string_split_off(String *string, usize at)
 {
-	usize len = string_len(string);
 	ResultString tail;
 
-	if (at > len) {
+	if (at > string->len) {
 		return StringErr(ERROR_INVALID_ARGUMENT);
 	}
-	tail = string_new_n(string_as_ptr(string) + at, len - at);
+	tail = string_new_n(string_as_ptr(string) + at, string->len - at);
 	if (String_is_err(&tail)) {
 		return tail;
 	}
@@ -242,64 +246,64 @@ void string_retain(String *string, string_retain_fn keep, void *context)
 {
 	usize read_index;
 	usize write_index = 0;
-	usize len = string_len(string);
 	u8 *data;
 
 	if (keep == NULL || string->raw.data == NULL) {
 		return;
 	}
 	data = string->raw.data;
-	for (read_index = 0; read_index < len; ++read_index) {
+	for (read_index = 0; read_index < string->len; ++read_index) {
 		if (keep(data[read_index], context)) {
 			data[write_index++] = data[read_index];
 		}
 	}
-	data[write_index] = '\0';
-	string->raw.size = write_index + 1;
+	string->len = write_index;
+	data[string->len] = '\0';
 }
 
 void string_clear(String *string)
 {
-	if (string->raw.data == NULL) {
-		return;
+	string->len = 0;
+	if (string->raw.data != NULL) {
+		((char *)string->raw.data)[0] = '\0';
 	}
-	((char *)string->raw.data)[0] = '\0';
-	string->raw.size = 1;
 }
 
 i32 string_truncate(String *string, usize len)
 {
-	if (len > string_len(string)) {
+	if (len > string->len) {
 		return -1;
 	}
-	if (string->raw.data == NULL) {
-		return 0;
+	string->len = len;
+	if (string->raw.data != NULL) {
+		((char *)string->raw.data)[len] = '\0';
 	}
-	((char *)string->raw.data)[len] = '\0';
-	string->raw.size = len + 1;
 	return 0;
 }
 
 i32 string_pop(String *string, u8 *out)
 {
-	usize len = string_len(string);
-
-	if (len == 0 || out == NULL) {
+	if (string->len == 0 || out == NULL) {
 		return -1;
 	}
-	return vec_remove(&string->raw, len - 1, out);
+	string->len--;
+	*out = ((u8 *)string->raw.data)[string->len];
+	((char *)string->raw.data)[string->len] = '\0';
+	return 0;
 }
 
 void string_drop(void *self)
 {
 	String *string = self;
-	vec_drop(&string->raw);
+
+	raw_buf_drop(&string->raw);
+	memset(string, 0, sizeof(*string));
 }
 
 void *string_clone_obj(const void *source_ptr)
 {
 	const String *source = source_ptr;
-	ResultString result = string_new_n(string_as_ptr(source), string_len(source));
+	ResultString result = string_new_n(string_as_ptr(source), source->len);
 	String *copy;
 
 	if (String_is_err(&result)) {
@@ -308,6 +312,7 @@ void *string_clone_obj(const void *source_ptr)
 	copy = malloc(sizeof(*copy));
 	if (copy == NULL) {
 		String value = String_unwrap(&result);
+
 		string_drop(&value);
 		return NULL;
 	}

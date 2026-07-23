@@ -61,6 +61,7 @@ version = "0.0.0"
 dependencies = [
  "shyos-error",
  "shyos-log",
+ "shyos-trap",
  "string_no_alloc",
 ]
 
@@ -69,9 +70,24 @@ name = "shyos-data-structure"
 version = "0.0.0"
 dependencies = [
  "shyos-basic",
+ "shyos-deque",
  "shyos-hashtable",
+ "shyos-linked-list",
+ "shyos-queue",
+ "shyos-rawbuf",
+ "shyos-ringbuffer",
+ "shyos-stack",
  "shyos-vec",
  "shyos_string",
+]
+
+[[package]]
+name = "shyos-deque"
+version = "0.0.0"
+dependencies = [
+ "shyos-obj",
+ "shyos-rawbuf",
+ "shyos-result",
 ]
 
 [[package]]
@@ -83,8 +99,17 @@ name = "shyos-hashtable"
 version = "0.0.0"
 dependencies = [
  "shyos-obj",
+ "shyos-rawbuf",
  "shyos-result",
- "shyos-vec",
+]
+
+[[package]]
+name = "shyos-linked-list"
+version = "0.0.0"
+dependencies = [
+ "shyos-obj",
+ "shyos-rawbuf",
+ "shyos-result",
 ]
 
 [[package]]
@@ -102,8 +127,24 @@ name = "shyos-obj"
 version = "0.0.0"
 
 [[package]]
+name = "shyos-queue"
+version = "0.0.0"
+dependencies = [
+ "shyos-deque",
+ "shyos-obj",
+ "shyos-result",
+]
+
+[[package]]
 name = "shyos-rand"
 version = "0.0.0"
+
+[[package]]
+name = "shyos-rawbuf"
+version = "0.0.0"
+dependencies = [
+ "shyos-result",
+]
 
 [[package]]
 name = "shyos-result"
@@ -113,14 +154,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "shyos-ringbuffer"
+version = "0.0.0"
+dependencies = [
+ "shyos-deque",
+ "shyos-obj",
+ "shyos-result",
+]
+
+[[package]]
+name = "shyos-stack"
+version = "0.0.0"
+dependencies = [
+ "shyos-deque",
+ "shyos-obj",
+ "shyos-result",
+]
+
+[[package]]
 name = "shyos-stdio"
 version = "0.0.0"
+
+[[package]]
+name = "shyos-trap"
+version = "0.0.0"
+dependencies = [
+ "irq",
+ "panic",
+]
 
 [[package]]
 name = "shyos-vec"
 version = "0.0.0"
 dependencies = [
  "shyos-obj",
+ "shyos-rawbuf",
  "shyos-result",
 ]
 
@@ -128,8 +196,8 @@ dependencies = [
 name = "shyos_string"
 version = "0.0.0"
 dependencies = [
+ "shyos-rawbuf",
  "shyos-result",
- "shyos-vec",
  "string_no_alloc",
 ]
 

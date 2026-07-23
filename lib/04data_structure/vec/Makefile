@@ -15,6 +15,7 @@ $(OUT_DIR):
 
 $(VEC_C_OBJ): vec.c vec.h $(SHYOS_ROOT)/lib/03basic/obj/obj.h \
 		$(SHYOS_ROOT)/lib/03basic/result/result.h \
+		$(SHYOS_ROOT)/lib/04data_structure/rawbuf/rawbuf.h \
 		$(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c -o $@ vec.c
 

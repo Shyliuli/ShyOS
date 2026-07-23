@@ -5,9 +5,7 @@
 
 use core::cell::UnsafeCell;
 
-use irq::{
-    claim_external_irq, complete_external_irq, irq_id_source, set_trap_entry, IrqError,
-};
+use irq::{claim_external_irq, complete_external_irq, irq_id_source, set_trap_entry, IrqError};
 use panic::panic_cstr;
 
 pub use irq;
