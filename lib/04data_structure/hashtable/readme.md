@@ -23,3 +23,8 @@ the value to the caller or drops it when `out_value` is NULL.
 
 The Rust wrapper is `shyos_hashtable::CHashTable<K, V>`. It uses `Hash + Eq`
 for key callbacks and installs Rust drop callbacks in the C TypeDesc values.
+The C `HashSet` contains one `HashTable` field at offset zero and uses a `u8`
+value internally. Rust mirrors it with `#[repr(C)] RawHashSet` and exposes
+`#[repr(transparent)] CHashSet<K>`. Its methods call the C `hash_set_*`
+functions directly, so the same object layout crosses the FFI boundary in
+both directions.

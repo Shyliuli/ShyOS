@@ -10,7 +10,7 @@ use shyos_data_structure::simple_alloc::HeapBox;
 use shyos_data_structure::string::CString;
 use shyos_data_structure::string_no_alloc::MemExt;
 use shyos_data_structure::{
-    error::ERROR_NO_VALUE, hashtable::CHashTable, CResult, CVec,
+    error::ERROR_NO_VALUE, hashtable::CHashSet, hashtable::CHashTable, CResult, CVec,
 };
 
 static DROP_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -119,6 +119,25 @@ pub extern "C" fn main() -> i32 {
         || (0..12).any(|key| table.get(&key).map(String::as_str) != Some("value"))
     {
         return 22;
+    }
+
+    let mut set = match CHashSet::<u32>::with_capacity(8) {
+        CResult::Ok(set) => set,
+        CResult::Err(_) => return 23,
+    };
+    if set.insert(7) != CResult::Ok(true)
+        || set.insert(7) != CResult::Ok(false)
+        || !set.contains(&7)
+        || set.len() != 1
+    {
+        return 24;
+    }
+    if !set.remove(&7) || set.contains(&7) || set.remove(&7) {
+        return 25;
+    }
+    set.clear();
+    if !set.is_empty() {
+        return 26;
     }
 
     let mut reserved = match CVec::with_capacity(3) {

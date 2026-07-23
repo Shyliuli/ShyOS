@@ -16,6 +16,8 @@ const HASH_TABLE_OK: i32 = 0;
 const HASH_TABLE_OUT_OF_MEMORY: i32 = -1;
 const HASH_TABLE_INVALID_ARGUMENT: i32 = -2;
 const HASH_TABLE_NOT_FOUND: i32 = -3;
+const HASH_SET_ALREADY_PRESENT: i32 = 0;
+const HASH_SET_INSERTED: i32 = 1;
 
 type HashFn = unsafe extern "C" fn(*const c_void) -> usize;
 type EqFn = unsafe extern "C" fn(*const c_void, *const c_void) -> bool;
@@ -32,6 +34,17 @@ pub struct RawHashTable {
     hash: Option<HashFn>,
     eq: Option<EqFn>,
 }
+
+#[repr(C)]
+#[doc(hidden)]
+pub struct RawHashSet {
+    pub table: RawHashTable,
+}
+
+const _: () = {
+    assert!(size_of::<RawHashSet>() == size_of::<RawHashTable>());
+    assert!(align_of::<RawHashSet>() == align_of::<RawHashTable>());
+};
 
 unsafe extern "C" {
     #[link_name = "hash_table_new"]
@@ -77,6 +90,35 @@ unsafe extern "C" {
 
     #[link_name = "hash_table_drop"]
     fn c_hash_table_drop(table: *mut RawHashTable);
+
+    #[link_name = "hash_set_new"]
+    fn c_hash_set_new(
+        capacity: usize,
+        key_type: TypeDesc,
+        hash: Option<HashFn>,
+        eq: Option<EqFn>,
+    ) -> CResult<RawHashSet>;
+
+    #[link_name = "hash_set_len"]
+    fn c_hash_set_len(set: *const RawHashSet) -> usize;
+
+    #[link_name = "hash_set_capacity"]
+    fn c_hash_set_capacity(set: *const RawHashSet) -> usize;
+
+    #[link_name = "hash_set_contains"]
+    fn c_hash_set_contains(set: *const RawHashSet, value: *const c_void) -> bool;
+
+    #[link_name = "hash_set_insert"]
+    fn c_hash_set_insert(set: *mut RawHashSet, value: *mut c_void) -> i32;
+
+    #[link_name = "hash_set_remove"]
+    fn c_hash_set_remove(set: *mut RawHashSet, value: *const c_void) -> i32;
+
+    #[link_name = "hash_set_clear"]
+    fn c_hash_set_clear(set: *mut RawHashSet);
+
+    #[link_name = "hash_set_drop"]
+    fn c_hash_set_drop(set: *mut RawHashSet);
 }
 
 struct ShyHasher(u64);
@@ -146,6 +188,15 @@ pub struct CHashTable<K, V> {
 
 unsafe impl<K: Send, V: Send> Send for CHashTable<K, V> {}
 unsafe impl<K: Sync, V: Sync> Sync for CHashTable<K, V> {}
+
+#[repr(transparent)]
+pub struct CHashSet<K> {
+    raw: RawHashSet,
+    marker: PhantomData<K>,
+}
+
+unsafe impl<K: Send> Send for CHashSet<K> {}
+unsafe impl<K: Sync> Sync for CHashSet<K> {}
 
 impl<K: Hash + Eq, V> CHashTable<K, V> {
     pub fn new() -> CResult<Self> {
@@ -259,5 +310,93 @@ impl<K: Hash + Eq, V> CHashTable<K, V> {
 impl<K, V> Drop for CHashTable<K, V> {
     fn drop(&mut self) {
         unsafe { c_hash_table_drop(&mut self.raw) }
+    }
+}
+
+impl<K: Hash + Eq> CHashSet<K> {
+    pub fn new() -> CResult<Self> {
+        Self::with_capacity(HASH_TABLE_MIN_CAPACITY)
+    }
+
+    pub fn with_capacity(capacity: usize) -> CResult<Self> {
+        if capacity < HASH_TABLE_MIN_CAPACITY
+            || size_of::<K>() == 0
+            || align_of::<K>() > align_of::<usize>()
+        {
+            return CResult::err(ERROR_INVALID_ARGUMENT);
+        }
+
+        match unsafe {
+            c_hash_set_new(
+                capacity,
+                type_desc::<K>(),
+                Some(hash_key::<K>),
+                Some(eq_key::<K>),
+            )
+        } {
+            CResult::Ok(raw) => CResult::ok(Self {
+                raw,
+                marker: PhantomData,
+            }),
+            CResult::Err(error) => CResult::err(error),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        unsafe { c_hash_set_len(&self.raw) }
+    }
+
+    pub fn capacity(&self) -> usize {
+        unsafe { c_hash_set_capacity(&self.raw) }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn contains(&self, value: &K) -> bool {
+        unsafe {
+            c_hash_set_contains(
+                &self.raw,
+                (value as *const K).cast::<c_void>(),
+            )
+        }
+    }
+
+    pub fn insert(&mut self, value: K) -> CResult<bool> {
+        let mut value = ManuallyDrop::new(value);
+        let status = unsafe {
+            c_hash_set_insert(
+                &mut self.raw,
+                (&mut *value as *mut K).cast::<c_void>(),
+            )
+        };
+        match status {
+            HASH_SET_INSERTED => CResult::ok(true),
+            HASH_SET_ALREADY_PRESENT => CResult::ok(false),
+            _ => {
+                drop(ManuallyDrop::into_inner(value));
+                CResult::err(status_error(status))
+            }
+        }
+    }
+
+    pub fn remove(&mut self, value: &K) -> bool {
+        unsafe {
+            c_hash_set_remove(
+                &mut self.raw,
+                (value as *const K).cast::<c_void>(),
+            ) == HASH_TABLE_OK
+        }
+    }
+
+    pub fn clear(&mut self) {
+        unsafe { c_hash_set_clear(&mut self.raw) }
+    }
+}
+
+impl<K> Drop for CHashSet<K> {
+    fn drop(&mut self) {
+        unsafe { c_hash_set_drop(&mut self.raw) }
     }
 }

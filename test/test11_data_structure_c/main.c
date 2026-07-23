@@ -2,6 +2,7 @@
 #include "obj.h"
 #include "early_stdio.h"
 #include "hashtable.h"
+#include "hashset.h"
 #include "string.h"
 #include "vec.h"
 
@@ -321,6 +322,48 @@ static i32 test_hashtable(void)
 	return 0;
 }
 
+static i32 test_hashset(void)
+{
+	ResultHashSet set_result;
+	ResultHashSet clone_result;
+	HashSet set;
+	HashSet clone;
+	u32 first = 1;
+	u32 collision = 9;
+
+	set_result = hash_set_new(8, Type(u32), hash_u32, eq_u32);
+	if (HashSet_is_err(&set_result))
+		return -1;
+	set = HashSet_unwrap(&set_result);
+
+	if (hash_set_insert(&set, &first) != HASH_SET_INSERTED ||
+	    hash_set_insert(&set, &first) != HASH_SET_ALREADY_PRESENT ||
+	    hash_set_insert(&set, &collision) != HASH_SET_INSERTED ||
+	    !hash_set_contains(&set, &first) ||
+	    !hash_set_contains(&set, &collision) ||
+	    hash_set_len(&set) != 2)
+		return -1;
+
+	clone_result = hash_set_clone(&set);
+	if (HashSet_is_err(&clone_result))
+		return -1;
+	clone = HashSet_unwrap(&clone_result);
+	if (!hash_set_contains(&clone, &first) ||
+	    !hash_set_contains(&clone, &collision))
+		return -1;
+	hash_set_drop(&clone);
+
+	if (hash_set_remove(&set, &first) != HASH_TABLE_OK ||
+	    hash_set_contains(&set, &first) ||
+	    hash_set_remove(&set, &first) != HASH_TABLE_NOT_FOUND)
+		return -1;
+	hash_set_clear(&set);
+	if (!hash_set_is_empty(&set))
+		return -1;
+	hash_set_drop(&set);
+	return 0;
+}
+
 i32 main(void)
 {
 	var inferred = 42;
@@ -331,7 +374,7 @@ i32 main(void)
 	if (inferred != 42 || test_copy_vec() != 0 ||
 	    test_string_edit() != 0 || test_owned_nested_vec() != 0 ||
 	    test_let_cleanup() != 0 || test_result_string_vec() != 0 ||
-	    test_hashtable() != 0)
+	    test_hashtable() != 0 || test_hashset() != 0)
 		return 1;
 
 	block = malloc(32);

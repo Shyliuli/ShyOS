@@ -15,10 +15,15 @@ STRING_C_OBJ := $(STRING_DIR)/target/string_c.o
 
 HASHTABLE_DIR := hashtable
 HASHTABLE_C_OBJ := $(HASHTABLE_DIR)/target/hashtable_c.o
+HASHSET_C_OBJ := $(HASHTABLE_DIR)/target/hashset_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_04data_structure_rust
-LAYER_OBJS := $(VEC_C_OBJ) $(STRING_C_OBJ) $(HASHTABLE_C_OBJ)
+LAYER_OBJS := \
+	$(VEC_C_OBJ) \
+	$(STRING_C_OBJ) \
+	$(HASHTABLE_C_OBJ) \
+	$(HASHSET_C_OBJ)
 
 .PHONY: clean
 
