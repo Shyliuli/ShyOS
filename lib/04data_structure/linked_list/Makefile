@@ -2,7 +2,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 LINKED_LIST_C_OBJ := $(OUT_DIR)/linked_list_c.o
 
 .PHONY: build clean
@@ -20,4 +20,4 @@ $(LINKED_LIST_C_OBJ): linked_list.c linked_list.h \
 	$(CC) $(CFLAGS) -c -o $@ linked_list.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

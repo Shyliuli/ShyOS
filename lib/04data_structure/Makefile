@@ -5,35 +5,35 @@ SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
 LAYER := 04data_structure
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 
 RAWBUF_DIR := rawbuf
-RAWBUF_C_OBJ := $(RAWBUF_DIR)/target/rawbuf_c.o
+RAWBUF_C_OBJ := $(RAWBUF_DIR)/$(SHYOS_TARGET_DIR)/rawbuf_c.o
 
 VEC_DIR := vec
-VEC_C_OBJ := $(VEC_DIR)/target/vec_c.o
+VEC_C_OBJ := $(VEC_DIR)/$(SHYOS_TARGET_DIR)/vec_c.o
 
 STRING_DIR := string
-STRING_C_OBJ := $(STRING_DIR)/target/string_c.o
+STRING_C_OBJ := $(STRING_DIR)/$(SHYOS_TARGET_DIR)/string_c.o
 
 HASHTABLE_DIR := hashtable
-HASHTABLE_C_OBJ := $(HASHTABLE_DIR)/target/hashtable_c.o
-HASHSET_C_OBJ := $(HASHTABLE_DIR)/target/hashset_c.o
+HASHTABLE_C_OBJ := $(HASHTABLE_DIR)/$(SHYOS_TARGET_DIR)/hashtable_c.o
+HASHSET_C_OBJ := $(HASHTABLE_DIR)/$(SHYOS_TARGET_DIR)/hashset_c.o
 
 DEQUE_DIR := deque
-DEQUE_C_OBJ := $(DEQUE_DIR)/target/deque_c.o
+DEQUE_C_OBJ := $(DEQUE_DIR)/$(SHYOS_TARGET_DIR)/deque_c.o
 
 RINGBUFFER_DIR := ringbuffer
-RINGBUFFER_C_OBJ := $(RINGBUFFER_DIR)/target/ringbuffer_c.o
+RINGBUFFER_C_OBJ := $(RINGBUFFER_DIR)/$(SHYOS_TARGET_DIR)/ringbuffer_c.o
 
 STACK_DIR := stack
-STACK_C_OBJ := $(STACK_DIR)/target/stack_c.o
+STACK_C_OBJ := $(STACK_DIR)/$(SHYOS_TARGET_DIR)/stack_c.o
 
 QUEUE_DIR := queue
-QUEUE_C_OBJ := $(QUEUE_DIR)/target/queue_c.o
+QUEUE_C_OBJ := $(QUEUE_DIR)/$(SHYOS_TARGET_DIR)/queue_c.o
 
 LINKED_LIST_DIR := linked_list
-LINKED_LIST_C_OBJ := $(LINKED_LIST_DIR)/target/linked_list_c.o
+LINKED_LIST_C_OBJ := $(LINKED_LIST_DIR)/$(SHYOS_TARGET_DIR)/linked_list_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_04data_structure_rust
@@ -59,7 +59,7 @@ $(LAYER_ARCHIVE): $(LAYER_OBJS) $(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(AR) rcs $@ $(LAYER_OBJS)
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target
 	$(MAKE) -C $(RAWBUF_DIR) clean
 	$(MAKE) -C $(VEC_DIR) clean
 	$(MAKE) -C $(STRING_DIR) clean

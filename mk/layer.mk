@@ -68,11 +68,13 @@ $(LAYER_FILE): $(LAYER_ARCHIVE) layer-rust-staticlib $(LAYER_TOOL) \
 		$(SHYOS_ROOT)/lib/$(LAYER)/layer.toml
 	python3 $(LAYER_TOOL) --root $(SHYOS_ROOT) emit \
 		--layer $(LAYER) \
-		--output $@
+		--output $@ \
+		--config-id $(SHYOS_CONFIG_ID)
 
 $(LAYER_NORUST_FILE): $(LAYER_ARCHIVE) $(LAYER_TOOL) \
 		$(SHYOS_ROOT)/lib/$(LAYER)/layer.toml
 	python3 $(LAYER_TOOL) --root $(SHYOS_ROOT) emit \
 		--layer $(LAYER) \
 		--norust \
-		--output $@
+		--output $@ \
+		--config-id $(SHYOS_CONFIG_ID)

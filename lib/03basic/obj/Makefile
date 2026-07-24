@@ -3,7 +3,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 OBJ_C_OBJ := $(OUT_DIR)/obj_c.o
 
 .PHONY: build clean
@@ -17,4 +17,4 @@ $(OBJ_C_OBJ): obj.c obj.h $(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c -o $@ obj.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

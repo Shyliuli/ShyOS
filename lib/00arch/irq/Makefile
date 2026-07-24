@@ -4,7 +4,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target/$(BACKEND)
+OUT_DIR := $(SHYOS_TARGET_DIR)/$(BACKEND)
 IRQ_C_OBJ := $(OUT_DIR)/irq_c.o
 
 ifeq ($(BACKEND),qemu_virt)

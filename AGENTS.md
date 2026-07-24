@@ -191,6 +191,11 @@ C 编译的模块头文件搜索路径也必须由同一模块发现结果自动
 
 ## Native 层级链接
 
+模块与层的 native 产物（对象、archive、`.layer.ld`）写入各自的
+`target/<config-id>/` 目录；`config-id` 由 `mk/config.mk` 对当前有效编译配置
+（CONFIG、defines、工具链与 C/Rust 标志）取哈希得到。不同 image/backend 的配置
+互不覆盖，切换配置不再触发另一配置的重编；`clean` 仍删除整个 `target/`。
+
 每一层必须提供以下 native 产物：
 
 1. `libshyos_<layer>.a`

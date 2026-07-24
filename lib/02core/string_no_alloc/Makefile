@@ -4,7 +4,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 STRING_C_OBJ := $(OUT_DIR)/string_no_alloc_c.o
 HOST_TEST := $(OUT_DIR)/string_no_alloc_test
 HOST_CC ?= cc
@@ -33,4 +33,4 @@ $(HOST_TEST): string_no_alloc.c string_noalloc.h tests/string_no_alloc_test.c | 
 		-o $@ string_no_alloc.c tests/string_no_alloc_test.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

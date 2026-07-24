@@ -5,7 +5,7 @@ SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
 LAYER := 00arch
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 INIT_S_OBJ := $(OUT_DIR)/init.o
 
 INIT_DIR := init
@@ -14,11 +14,11 @@ RAND_DIR := rand
 SHUTDOWN_DIR := shutdown
 IRQ_DIR := irq
 
-INIT_C_OBJ := $(INIT_DIR)/target/init_c.o
-UART_LINUX_C_OBJ := $(UART_DIR)/target/linux_user_c.o
-RAND_C_OBJ := $(RAND_DIR)/target/rand_c.o
-SHUTDOWN_C_OBJ := $(SHUTDOWN_DIR)/target/shutdown_c.o
-IRQ_C_OBJ := $(IRQ_DIR)/target/$(BACKEND)/irq_c.o
+INIT_C_OBJ := $(INIT_DIR)/$(SHYOS_TARGET_DIR)/init_c.o
+UART_LINUX_C_OBJ := $(UART_DIR)/$(SHYOS_TARGET_DIR)/linux_user_c.o
+RAND_C_OBJ := $(RAND_DIR)/$(SHYOS_TARGET_DIR)/rand_c.o
+SHUTDOWN_C_OBJ := $(SHUTDOWN_DIR)/$(SHYOS_TARGET_DIR)/shutdown_c.o
+IRQ_C_OBJ := $(IRQ_DIR)/$(SHYOS_TARGET_DIR)/$(BACKEND)/irq_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_00arch_rust
@@ -56,7 +56,7 @@ $(LAYER_ARCHIVE): $(LAYER_OBJS) $(OUT_DIR)/.init-anchor $(SHYOS_CONFIG_STATE) | 
 	$(AR) rcs $@ $(LAYER_OBJS)
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target
 	$(MAKE) -C $(INIT_DIR) clean
 	$(MAKE) -C $(IRQ_DIR) clean
 	$(MAKE) -C $(UART_DIR) clean

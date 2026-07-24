@@ -5,13 +5,13 @@ SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
 LAYER := 03basic
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 
 SIMPLE_ALLOC_DIR := simple_alloc
-SIMPLE_ALLOC_C_OBJ := $(SIMPLE_ALLOC_DIR)/target/simple_alloc_c.o
+SIMPLE_ALLOC_C_OBJ := $(SIMPLE_ALLOC_DIR)/$(SHYOS_TARGET_DIR)/simple_alloc_c.o
 
 OBJ_DIR := obj
-OBJ_C_OBJ := $(OBJ_DIR)/target/obj_c.o
+OBJ_C_OBJ := $(OBJ_DIR)/$(SHYOS_TARGET_DIR)/obj_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_03basic_rust
@@ -39,7 +39,7 @@ $(LAYER_ARCHIVE): $(LAYER_OBJS) $(OUT_DIR)/.alloc-anchor $(SHYOS_CONFIG_STATE) |
 	$(AR) rcs $@ $(LAYER_OBJS)
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target
 	$(MAKE) -C $(SIMPLE_ALLOC_DIR) clean
 	$(MAKE) -C $(OBJ_DIR) clean
 

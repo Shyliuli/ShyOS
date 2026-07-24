@@ -5,7 +5,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 PANIC_C_OBJ := $(OUT_DIR)/panic_c.o
 
 .PHONY: build clean cargo-check
@@ -25,4 +25,4 @@ cargo-check:
 	$(CARGO) check --manifest-path Cargo.toml --target $(RUST_TARGET)
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

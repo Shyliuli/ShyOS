@@ -4,11 +4,11 @@
 SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 
 .PHONY: build clean
 
 build:
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

@@ -2,7 +2,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 RAWBUF_C_OBJ := $(OUT_DIR)/rawbuf_c.o
 
 .PHONY: build clean
@@ -18,4 +18,4 @@ $(RAWBUF_C_OBJ): rawbuf.c rawbuf.h \
 	$(CC) $(CFLAGS) -c -o $@ rawbuf.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

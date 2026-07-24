@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import tomllib
@@ -32,13 +33,11 @@ class Layer:
     dependencies: tuple[str, ...]
     image: bool
 
-    @property
-    def archive(self) -> Path:
-        return self.path / "target" / f"libshyos_{self.key}.a"
+    def archive(self, config_id: str = "") -> Path:
+        return self.path / "target" / config_id / f"libshyos_{self.key}.a"
 
-    @property
-    def rust_archive(self) -> Path:
-        return self.path / "target" / f"libshyos_{self.key}_rust.a"
+    def rust_archive(self, config_id: str = "") -> Path:
+        return self.path / "target" / config_id / f"libshyos_{self.key}_rust.a"
 
 
 @dataclass(frozen=True)
@@ -153,9 +152,12 @@ def load_modules(root: Path, layers: dict[str, Layer]) -> dict[str, Module]:
     lib_dir = (root / "lib").resolve()
     modules: dict[str, Module] = {}
 
-    for path in sorted(item for item in lib_dir.rglob("*") if item.is_dir()):
-        if "target" in path.parts:
-            continue
+    paths: list[Path] = []
+    for dirpath, dirnames, _filenames in os.walk(lib_dir):
+        dirnames[:] = [name for name in dirnames if name != "target"]
+        paths.append(Path(dirpath))
+
+    for path in sorted(paths, key=lambda item: item.as_posix()):
         if not (path / "Cargo.toml").is_file() and not (path / "Makefile").is_file():
             continue
         relative = path.relative_to(lib_dir)
@@ -266,18 +268,20 @@ def ordered_layer_closure(layers: dict[str, Layer], name: str) -> list[Layer]:
     )
 
 
-def owner_module(modules: dict[str, Module], path: Path) -> Module | None:
-    resolved = path.resolve()
-    owners: list[Module] = []
-    for module in modules.values():
-        try:
-            resolved.relative_to(module.path)
-        except ValueError:
-            continue
-        owners.append(module)
-    if not owners:
-        return None
-    return max(owners, key=lambda module: len(module.path.parts))
+def module_prefix_index(modules: dict[str, Module]) -> list[tuple[str, Module]]:
+    return sorted(
+        ((str(module.path), module) for module in modules.values()),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    )
+
+
+def owner_module(index: list[tuple[str, Module]], path: Path) -> Module | None:
+    resolved = str(path.resolve())
+    for prefix, module in index:
+        if resolved == prefix or resolved.startswith(prefix + os.sep):
+            return module
+    return None
 
 
 def dependency_paths(document: object) -> Iterable[str]:
@@ -306,6 +310,7 @@ def cargo_dependencies(
     modules: dict[str, Module],
     graph: dict[str, set[str]],
 ) -> None:
+    index = module_prefix_index(modules)
     for module in modules.values():
         manifest = module.path / "Cargo.toml"
         if not manifest.is_file():
@@ -314,7 +319,7 @@ def cargo_dependencies(
             document = tomllib.load(stream)
         for dependency_path in dependency_paths(document):
             target_path = (manifest.parent / dependency_path).resolve()
-            target = owner_module(modules, target_path)
+            target = owner_module(index, target_path)
             if target is None:
                 try:
                     target_path.relative_to((root / "lib").resolve())
@@ -329,11 +334,12 @@ def cargo_dependencies(
 
 def header_candidates(modules: dict[str, Module]) -> dict[str, list[Path]]:
     candidates: dict[str, list[Path]] = {}
+    index = module_prefix_index(modules)
     for module in modules.values():
         for header in module.path.rglob("*.h"):
             if "target" in header.parts:
                 continue
-            if owner_module(modules, header) != module:
+            if owner_module(index, header) != module:
                 continue
             relative = header.relative_to(module.path).as_posix()
             candidates.setdefault(header.name, []).append(header)
@@ -346,21 +352,28 @@ def c_dependencies(
     modules: dict[str, Module],
     graph: dict[str, set[str]],
 ) -> None:
+    index = module_prefix_index(modules)
     candidates = header_candidates(modules)
     lib_dir = root / "lib"
 
-    for pattern in ("*.c", "*.h", "*.S"):
-        for source_path in sorted(lib_dir.rglob(pattern)):
-            if "target" in source_path.parts:
-                continue
-            source = owner_module(modules, source_path)
+    sources: dict[str, list[Path]] = {".c": [], ".h": [], ".S": []}
+    for dirpath, dirnames, filenames in os.walk(lib_dir):
+        dirnames[:] = [name for name in dirnames if name != "target"]
+        for name in filenames:
+            suffix = os.path.splitext(name)[1]
+            if suffix in sources:
+                sources[suffix].append(Path(dirpath) / name)
+
+    for pattern, suffix in (("*.c", ".c"), ("*.h", ".h"), ("*.S", ".S")):
+        for source_path in sorted(sources[suffix], key=lambda item: item.as_posix()):
+            source = owner_module(index, source_path)
             if source is None:
                 continue
             text = source_path.read_text(encoding="utf-8")
             for include in LOCAL_INCLUDE.findall(text):
                 local = (source_path.parent / include).resolve()
                 if local.is_file():
-                    target = owner_module(modules, local)
+                    target = owner_module(index, local)
                     if target is not None:
                         add_dependency(graph, source, target)
                     continue
@@ -369,7 +382,7 @@ def c_dependencies(
                 owners = {
                     target.key: target
                     for match in matches
-                    if (target := owner_module(modules, match)) is not None
+                    if (target := owner_module(index, match)) is not None
                 }
                 if len(owners) > 1:
                     names = ", ".join(sorted(owners))
@@ -961,10 +974,13 @@ def emit_layer_file(
     name: str,
     output: Path,
     include_rust: bool,
+    config_id: str = "",
 ) -> None:
-    archives = [layer.archive for layer in ordered_layer_closure(layers, name)]
+    archives = [
+        layer.archive(config_id) for layer in ordered_layer_closure(layers, name)
+    ]
     if include_rust:
-        archives.append(layers[name].rust_archive)
+        archives.append(layers[name].rust_archive(config_id))
     missing = [path for path in archives if not path.is_file()]
     if missing:
         paths = ", ".join(str(path.relative_to(root)) for path in missing)
@@ -1036,6 +1052,7 @@ def parse_args() -> argparse.Namespace:
     emit_parser.add_argument("--layer", required=True)
     emit_parser.add_argument("--output", required=True, type=Path)
     emit_parser.add_argument("--norust", action="store_true")
+    emit_parser.add_argument("--config-id", default="")
 
     html_parser = subparsers.add_parser("html")
     html_parser.add_argument("--output", required=True, type=Path)
@@ -1122,6 +1139,7 @@ def main() -> int:
                 args.layer,
                 args.output.resolve(),
                 not args.norust,
+                args.config_id,
             )
         elif args.command == "html":
             emit_html(

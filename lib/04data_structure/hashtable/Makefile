@@ -3,7 +3,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 HASHTABLE_C_OBJ := $(OUT_DIR)/hashtable_c.o
 HASHSET_C_OBJ := $(OUT_DIR)/hashset_c.o
 
@@ -29,4 +29,4 @@ $(HASHSET_C_OBJ): hashset.c hashset.h hashtable.h \
 	$(CC) $(CFLAGS) -c -o $@ hashset.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

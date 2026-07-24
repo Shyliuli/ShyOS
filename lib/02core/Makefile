@@ -5,10 +5,10 @@ SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
 LAYER := 02core
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 
 STRING_DIR := string_no_alloc
-STRING_C_OBJ := $(STRING_DIR)/target/string_no_alloc_c.o
+STRING_C_OBJ := $(STRING_DIR)/$(SHYOS_TARGET_DIR)/string_no_alloc_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_02core_rust
@@ -23,7 +23,7 @@ $(LAYER_ARCHIVE): $(STRING_C_OBJ) $(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(AR) rcs $@ $(STRING_C_OBJ)
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target
 	$(MAKE) -C $(STRING_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

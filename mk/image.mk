@@ -48,13 +48,13 @@ IMAGE_LAYER_BUILD_TARGET := build
 endif
 ifeq ($(IMAGE_LAYER_VARIANT),norust)
 IMAGE_LAYER_FILE := \
-	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/$(IMAGE_LAYER).norust.layer.ld
+	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/$(SHYOS_CONFIG_ID)/$(IMAGE_LAYER).norust.layer.ld
 else
 IMAGE_LAYER_FILE := \
-	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/$(IMAGE_LAYER).layer.ld
+	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/$(SHYOS_CONFIG_ID)/$(IMAGE_LAYER).layer.ld
 endif
 IMAGE_LAYER_STAMP := \
-	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/.$(IMAGE_LAYER_VARIANT).image.stamp
+	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/$(SHYOS_CONFIG_ID)/.$(IMAGE_LAYER_VARIANT).image.stamp
 QEMU_MEM ?= 256M
 
 .PHONY: build layer run clean print-config dag-html

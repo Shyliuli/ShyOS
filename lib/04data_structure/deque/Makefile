@@ -2,7 +2,7 @@
 SHYOS_ROOT ?= $(abspath ../../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 DEQUE_C_OBJ := $(OUT_DIR)/deque_c.o
 
 .PHONY: build clean
@@ -20,4 +20,4 @@ $(DEQUE_C_OBJ): deque.c deque.h \
 	$(CC) $(CFLAGS) -c -o $@ deque.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target

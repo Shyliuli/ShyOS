@@ -5,14 +5,14 @@ SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
 LAYER := 01log
-OUT_DIR := target
+OUT_DIR := $(SHYOS_TARGET_DIR)
 
 PRINT_DIR := print
 STDIO_EARLY_DIR := stdio_early
 PANIC_DIR := panic
-PRINT_C_OBJ := $(PRINT_DIR)/target/print_c.o
-STDIO_EARLY_C_OBJ := $(STDIO_EARLY_DIR)/target/stdio_early_c.o
-PANIC_C_OBJ := $(PANIC_DIR)/target/panic_c.o
+PRINT_C_OBJ := $(PRINT_DIR)/$(SHYOS_TARGET_DIR)/print_c.o
+STDIO_EARLY_C_OBJ := $(STDIO_EARLY_DIR)/$(SHYOS_TARGET_DIR)/stdio_early_c.o
+PANIC_C_OBJ := $(PANIC_DIR)/$(SHYOS_TARGET_DIR)/panic_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_01log_rust
@@ -31,7 +31,7 @@ $(LAYER_ARCHIVE): $(LAYER_OBJS) $(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(AR) rcs $@ $(LAYER_OBJS)
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf target
 	$(MAKE) -C $(PRINT_DIR) clean
 	$(MAKE) -C $(STDIO_EARLY_DIR) clean
 	$(MAKE) -C $(PANIC_DIR) clean

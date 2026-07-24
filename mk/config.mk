@@ -162,10 +162,18 @@ export RUSTFLAGS
 # their selected target instead of relying on the target's prebuilt sysroot.
 CARGO_BUILD_STD_FLAGS ?= -Z build-std=core,alloc,compiler_builtins
 
-# Shared native layer outputs hold one effective configuration at a time.
-# Update this marker only when that configuration changes so every dependent
-# object is rebuilt when switching images or backends.
-SHYOS_CONFIG_STATE := $(SHYOS_ROOT)/target/.shyos-config
+# Per-configuration native output variant. Objects built with different
+# effective flags live in separate target/<config-id>/ directories, so
+# switching images or backends no longer rebuilds the other configuration.
+SHYOS_CONFIG_ID := $(shell printf '%s\n' \
+	'$(CONFIG)' '$(SHYOS_DEFINES)' '$(BACKEND)' '$(BOARD)' '$(CC)' \
+	'$(CFLAGS)' '$(ASFLAGS)' '$(LDFLAGS)' '$(RUST_TARGET)' '$(RUSTFLAGS)' \
+	'$(CARGO_PROFILE)' '$(CARGO_BUILD_STD_FLAGS)' | md5sum | cut -c1-12)
+SHYOS_TARGET_DIR := target/$(SHYOS_CONFIG_ID)
+
+# Record the effective configuration once per variant; the marker keeps its
+# mtime afterwards so dependents never rebuild for a stable configuration.
+SHYOS_CONFIG_STATE := $(SHYOS_ROOT)/target/.shyos-config-$(SHYOS_CONFIG_ID)
 
 .PHONY: shyos-config-force
 shyos-config-force:
