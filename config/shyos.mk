@@ -47,6 +47,14 @@ SHYOS_DEFINES += SHYOS_STDIO_EARLY
 # No scheduler is provided by the selected ShyOS layers.1
 SHYOS_DEFINES += SHYOS_SCHEDULER_NONE
 
+# ---- layer ----
+SHYOS_DEFINES += SHYOS_00
+SHYOS_DEFINES += SHYOS_01
+SHYOS_DEFINES += SHYOS_02
+SHYOS_DEFINES += SHYOS_03
+SHYOS_DEFINES += SHYOS_04
+# ..... 
+
 # Future providers can be added directly, for example:
 # SHYOS_DEFINES += SHYOS_SCHEDULER_RR
 
