@@ -16,8 +16,6 @@ RB_C_OBJ := $(RB_DIR)/$(SHYOS_TARGET_DIR)/ringbuffer_no_alloc_c.o
 TRAP_DIR := trap
 TRAP_S_OBJ := $(TRAP_DIR)/$(SHYOS_TARGET_DIR)/trap.o
 
-UART_INTERUPT_DIR := uart_interupt
-
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_02core_rust
 
@@ -41,6 +39,5 @@ clean:
 	$(MAKE) -C $(STRING_DIR) clean
 	$(MAKE) -C $(RB_DIR) clean
 	$(MAKE) -C $(TRAP_DIR) clean
-	$(MAKE) -C $(UART_INTERUPT_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk
