@@ -2,12 +2,12 @@
 
 # trap
 
-`02core/trap` 提供表驱动 trap 分发。汇编入口仍由各 image 自带；本组件负责
-`trap_dispatch(scause)` 与 handler 注册表。
+`02core/trap` 提供 trap 汇编入口与表驱动分发。汇编入口保存 `TrapContext`，再调用
+`trap_dispatch(scause, ctx)`。
 
 ```text
-trap 入口（汇编，保存现场）
-  -> trap_dispatch(scause)
+trap_entry（汇编，保存现场）
+  -> trap_dispatch(scause, ctx)
        interrupt = 0: exception_handlers[cause]
        interrupt = 1: cause_interrupt_table[cause]
          默认 cause 9 = claim -> cause_external_table[source] -> complete
@@ -15,3 +15,9 @@ trap 入口（汇编，保存现场）
 ```
 
 `init_trap_entry(entry)` 清空表、安装默认 external 分发，并 `set_trap_entry(entry)`。
+
+`sscratch` 约定：
+
+- S-mode 执行期间为 0，trap 使用当前内核栈；
+- U-mode 执行期间保存内核栈顶，trap 入口切换到该栈；
+- 从 trap 返回时根据 `sstatus.SPP` 恢复对应约定。

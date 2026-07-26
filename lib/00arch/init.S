@@ -56,6 +56,8 @@ _start:
 _start_s:
         # main 安装 trap handler 前保持 S-mode 中断关闭
         csrci   sstatus, 0x2
+        # S-mode trap 使用当前内核栈；进入 U-mode 前再写入对应内核栈顶
+        csrw    sscratch, zero
 
         # runtime 初始化（init.c 条件编译维护），再进入 main
         call    _shy_os_init

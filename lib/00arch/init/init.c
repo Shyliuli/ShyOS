@@ -21,10 +21,26 @@
 #include "board.h"
 #endif
 
+
+#if defined(SHYOS_02)&&!defined(SHYOS_BACKEND_LINUX_USER)
+/*前向声明 trap_entry符号*/
+//HACK: 这里应当改为注册或者配置机制，而非低层知道高层
+void trap_entry(void);
+i32 init_trap_entry(usize entry);
+#endif
+
+
 void _shy_os_init(void)
 {
 #if !defined(SHYOS_ALLOCATOR_NONE)
+	//内存分配器
 	(void)heap_init(HEAP_START, (usize)HEAP_SIZE);
+#endif
+
+#if defined(SHYOS_02)&&!defined(SHYOS_BACKEND_LINUX_USER)
+	/*需init trap*/
+
+	init_trap_entry((usize)trap_entry);
 #endif
 }
 

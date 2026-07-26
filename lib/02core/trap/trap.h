@@ -15,8 +15,47 @@
 #define TRAP_IRQ_CAUSE_TIMER    5U
 #define TRAP_IRQ_CAUSE_EXTERNAL 9U
 
-typedef void (*trap_handler_t)(void);
 
+
+struct TrapContext{
+    usize orig_sp;
+    usize x1;
+    usize x2;
+    usize x3;
+    usize x4;
+    usize x5;
+    usize x6;
+    usize x7;
+    usize x8;
+    usize x9;
+    usize x10;
+    usize x11;
+    usize x12;
+    usize x13;
+    usize x14;
+    usize x15;
+    usize x16;
+    usize x17;
+    usize x18;
+    usize x19;
+    usize x20;
+    usize x21;
+    usize x22;
+    usize x23;
+    usize x24;
+    usize x25;
+    usize x26;
+    usize x27;
+    usize x28;
+    usize x29;
+    usize x30;
+    usize x31;
+    usize sepc;
+    usize sstatus;
+    usize scause;
+};
+typedef struct TrapContext TrapContext;
+typedef void (*trap_handler_t)(TrapContext* ctx);
 /*
  * 清空并安装默认 external 分发（cause 9），再 set_trap_entry(entry)。
  * 返回值与 set_trap_entry 相同：0 成功，<0 错误。
@@ -24,7 +63,7 @@ typedef void (*trap_handler_t)(void);
 i32 init_trap_entry(usize entry);
 
 /* 汇编入口保存现场后调用；按 scause 查表分发。 */
-void trap_dispatch(usize scause);
+void trap_dispatch(usize scause,TrapContext* ctx);
 
 /* handler 为 NULL 表示清空该槽。越界 cause/source 被忽略。 */
 void trap_set_exception_handler(usize cause, trap_handler_t handler);
