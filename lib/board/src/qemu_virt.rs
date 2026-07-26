@@ -34,6 +34,23 @@ pub const UART_MSR: usize = 6;
 /// Scratch Register
 pub const UART_SCR: usize = 7;
 
+/// Enable received-data-available interrupt.
+pub const UART_IER_RX_AVAILABLE: u8 = 1 << 0;
+/// Enable transmitter-holding-register-empty interrupt.
+pub const UART_IER_TX_EMPTY: u8 = 1 << 1;
+
+/// IIR bit indicating that no UART interrupt is pending.
+pub const UART_IIR_NO_PENDING: u8 = 1 << 0;
+pub const UART_IIR_ID_MASK: u8 = 0x0e;
+pub const UART_IIR_TX_EMPTY: u8 = 0x02;
+pub const UART_IIR_RX_AVAILABLE: u8 = 0x04;
+pub const UART_IIR_LINE_STATUS: u8 = 0x06;
+pub const UART_IIR_RX_TIMEOUT: u8 = 0x0c;
+
+pub const UART_FCR_ENABLE: u8 = 1 << 0;
+pub const UART_FCR_CLEAR_RX: u8 = 1 << 1;
+pub const UART_FCR_CLEAR_TX: u8 = 1 << 2;
+
 /// Data Ready
 pub const UART_LSR_DR: u8 = 1 << 0;
 /// Overrun Error

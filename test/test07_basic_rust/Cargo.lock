@@ -26,6 +26,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "ringbuffer_no_alloc"
+version = "0.0.0"
+
+[[package]]
 name = "shutdown"
 version = "0.0.0"
 
@@ -59,9 +63,11 @@ dependencies = [
 name = "shyos-core"
 version = "0.0.0"
 dependencies = [
+ "ringbuffer_no_alloc",
  "shyos-error",
  "shyos-log",
  "shyos-trap",
+ "shyos-uart-interupt",
  "string_no_alloc",
 ]
 
@@ -104,6 +110,15 @@ version = "0.0.0"
 dependencies = [
  "irq",
  "panic",
+]
+
+[[package]]
+name = "shyos-uart-interupt"
+version = "0.0.0"
+dependencies = [
+ "board",
+ "ringbuffer_no_alloc",
+ "shyos-trap",
 ]
 
 [[package]]

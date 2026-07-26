@@ -21,3 +21,6 @@ trap_entry（汇编，保存现场）
 - S-mode 执行期间为 0，trap 使用当前内核栈；
 - U-mode 执行期间保存内核栈顶，trap 入口切换到该栈；
 - 从 trap 返回时根据 `sstatus.SPP` 恢复对应约定。
+
+`test/test13_qemu_trap_uart_c` 使用 UART THRE 产生真实 PLIC external interrupt，
+验证汇编现场、Rust 分发表、external handler 注册以及 PLIC claim/complete。

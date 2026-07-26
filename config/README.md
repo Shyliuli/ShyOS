@@ -99,12 +99,17 @@ define = "SHYOS_ALLOCATOR_SIMPLE"
 `make dag-html` 会读取当前选中 app 的 `shyos.mk`，列出所有 provider，并标记当前配置
 选中的实现。
 
-`lib/stdio` 是正式 stdio ABI 节点，配置必须选择恰好一个 `SHYOS_STDIO_*`
-provider。当前 `SHYOS_STDIO_EARLY` 将 C 的 `printf`、`scanf`、`snprintf` 与 Rust
-的 `print!`、`println!` 映射到 `01log/print` 的 early console。
+`00arch/uart` 是 raw UART capability 节点，配置必须选择恰好一个
+`SHYOS_UART_*` provider：
 
-`early_stdio.h`、`early_*` C 符号以及 Rust 的 `early_print!`、`early_println!`
-不属于可选 provider。它们始终存在，供启动和 panic 路径使用。
+- `SHYOS_UART_POLLING`（`00arch/uart`）：正式 stdio 使用轮询 UART
+- `SHYOS_UART_INTERRUPT`（`02core/uart_interupt`）：正式 stdio 使用中断驱动
+  UART；使用前需调用 `uart_interupt_init`
+
+`01log/print` 统一实现正式 stdio 的格式化与扫描逻辑，最终调用所选 provider 的
+`raw_putc` / `raw_getc`。`early_stdio.h`、`early_*` C 符号以及 Rust 的
+`early_print!`、`early_println!` 固定调用始终存在的 `early_raw_putc` /
+`early_raw_getc` 轮询通道，不受 provider 选择影响。
 
 ## Allocator arena (board defines)
 

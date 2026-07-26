@@ -15,6 +15,7 @@ $(OUT_DIR):
 	mkdir -p $@
 
 $(INIT_C_OBJ): init.c init.h \
+		$(SHYOS_ROOT)/lib/00arch/uart/uart.h \
 		$(SHYOS_ROOT)/lib/alloc/alloc.h \
 		$(SHYOS_ROOT)/lib/board/board.h \
 		$(SHYOS_CONFIG_STATE) | $(OUT_DIR)

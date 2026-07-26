@@ -22,14 +22,14 @@ unsafe extern "C" {
     pub fn early_snprintf(buf: *mut c_char, n: usize, fmt: *const c_char, ...) -> c_int;
 }
 
-// ---- Rust early 格式化输出：走 raw UART ----
+// ---- Rust early 格式化输出：始终走轮询 UART ----
 
 pub struct EarlyConsole;
 
 impl fmt::Write for EarlyConsole {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         for b in s.bytes() {
-            uart::raw_putc(b);
+            uart::early_raw_putc(b);
         }
         Ok(())
     }

@@ -16,7 +16,8 @@ HOST_PROJECTS := \
 
 QEMU_PROJECTS := \
 	test09_qemu_arch_c \
-	test10_qemu_irq_c
+	test10_qemu_irq_c \
+	test13_qemu_trap_uart_c
 
 .PHONY: build run build-host run-host build-qemu run-qemu build-all clean
 

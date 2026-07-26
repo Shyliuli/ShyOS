@@ -10,16 +10,21 @@ OUT_DIR := $(SHYOS_TARGET_DIR)
 STRING_DIR := string_no_alloc
 STRING_C_OBJ := $(STRING_DIR)/$(SHYOS_TARGET_DIR)/string_no_alloc_c.o
 
+RB_DIR := ringbuffer_no_alloc
+RB_C_OBJ := $(RB_DIR)/$(SHYOS_TARGET_DIR)/ringbuffer_no_alloc_c.o
+
 TRAP_DIR := trap
 TRAP_S_OBJ := $(TRAP_DIR)/$(SHYOS_TARGET_DIR)/trap.o
+
+UART_INTERUPT_DIR := uart_interupt
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_02core_rust
 
 ifeq ($(BACKEND),linux_user)
-LAYER_OBJS := $(STRING_C_OBJ)
+LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ)
 else
-LAYER_OBJS := $(STRING_C_OBJ) $(TRAP_S_OBJ)
+LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(TRAP_S_OBJ)
 endif
 
 .PHONY: clean
@@ -34,6 +39,8 @@ $(LAYER_ARCHIVE): $(LAYER_OBJS) $(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 clean:
 	rm -rf target
 	$(MAKE) -C $(STRING_DIR) clean
+	$(MAKE) -C $(RB_DIR) clean
 	$(MAKE) -C $(TRAP_DIR) clean
+	$(MAKE) -C $(UART_INTERUPT_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

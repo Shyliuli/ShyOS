@@ -36,13 +36,13 @@ endif
 SHYOS_DEFINES := $(strip $(SHYOS_DEFINES))
 BACKEND_DEFINES := $(filter SHYOS_BACKEND_%,$(SHYOS_DEFINES))
 BOARD_DEFINES := $(filter BOARD_%,$(SHYOS_DEFINES))
-STDIO_DEFINES := $(filter SHYOS_STDIO_%,$(SHYOS_DEFINES))
+UART_DEFINES := $(filter SHYOS_UART_%,$(SHYOS_DEFINES))
 
 ifneq ($(words $(BACKEND_DEFINES)),1)
 $(error config must keep exactly one SHYOS_BACKEND_* macro; got: $(BACKEND_DEFINES))
 endif
-ifneq ($(words $(STDIO_DEFINES)),1)
-$(error config must keep exactly one SHYOS_STDIO_* macro; got: $(STDIO_DEFINES))
+ifneq ($(words $(UART_DEFINES)),1)
+$(error config must keep exactly one SHYOS_UART_* macro; got: $(UART_DEFINES))
 endif
 
 # ---- common tools ----

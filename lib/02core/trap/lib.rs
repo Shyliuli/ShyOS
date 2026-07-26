@@ -5,7 +5,7 @@
 
 use core::cell::UnsafeCell;
 
-use irq::{IRQ_MASK_ALL, IrqError, claim_external_irq, complete_external_irq, disable_irq, enable_irq, irq_id_source, set_trap_entry};
+use irq::{IRQ_MASK_ALL, IrqError, claim_external_irq, complete_external_irq, enable_irq, irq_id_source, set_irq, set_trap_entry};
 use panic::panic_cstr;
 
 pub use irq;
@@ -128,7 +128,7 @@ pub extern "C" fn trap_dispatch(scause: usize, ctx: *mut TrapContext) {
 
 
     //中断处理流程允许重入，且可能时间比较长 不应持续关闭
-    enable_irq(IRQ_MASK_ALL);
+    let previous_irq = enable_irq(IRQ_MASK_ALL);
 
     let is_interrupt = (scause as isize) < 0;
     let cause = scause & !(1usize << (usize::BITS - 1));
@@ -150,7 +150,7 @@ pub extern "C" fn trap_dispatch(scause: usize, ctx: *mut TrapContext) {
     } else {
         trap_unhandled();
     }
-    disable_irq(IRQ_MASK_ALL);
+    set_irq(previous_irq);
 }
 
 #[no_mangle]

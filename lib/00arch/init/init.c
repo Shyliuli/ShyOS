@@ -5,9 +5,10 @@
  *   QEMU virt : init.S → _shy_os_init() → main() → shutdown()
  *   Linux user: 宿主 CRT 进入 main 前，constructor 调 _shy_os_init()
  *
- * 行为只通过条件编译维护：
- *   SHYOS_ALLOCATOR_NONE  -> 空
+ * 行为只通过条件编译 / provider 维护：
+ *   SHYOS_ALLOCATOR_NONE  -> 跳过 heap_init
  *   否则                  -> heap_init(HEAP_START, HEAP_SIZE)
+ *   uart_interupt_init()  -> 轮询 provider 为空实现，中断 provider 完成注册
  *
  * board 约定：
  *   HEAP_START != NULL  => 使用给定线性区
@@ -15,6 +16,8 @@
  */
 
 #include "init.h"
+#include "shy_type.h"
+#include "uart.h"
 
 #if !defined(SHYOS_ALLOCATOR_NONE)
 #include "alloc.h"
@@ -42,6 +45,7 @@ void _shy_os_init(void)
 
 	init_trap_entry((usize)trap_entry);
 #endif
+	(void)uart_interupt_init();
 }
 
 #if defined(SHYOS_BACKEND_LINUX_USER)

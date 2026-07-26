@@ -175,10 +175,13 @@ C 编译的模块头文件搜索路径也必须由同一模块发现结果自动
 `SHYOS_DEFINES` 标记已选择 provider。provider 关系用于能力展示和配置闭包，不替代
 普通模块依赖边。
 
-`early_stdio` 是 `01log/print` 始终提供的启动与 panic 通道。正式 `stdio` 使用
-`lib/stdio` capability，配置必须选择恰好一个 `SHYOS_STDIO_*` provider。当前
-`SHYOS_STDIO_EARLY` 同时提供 C 的正式 stdio 符号和 Rust 的 `print!`、`println!`；
-`early_*` 接口不受该选择影响。
+`early_stdio` 是 `01log/print` 始终提供的启动与 panic 通道。`00arch/uart` 声明
+raw UART capability，配置必须选择恰好一个 `SHYOS_UART_*` provider。当前
+`SHYOS_UART_POLLING`（`00arch/uart`）提供轮询实现；
+`SHYOS_UART_INTERRUPT`（`02core/uart_interupt`）提供中断驱动实现（含
+`uart_interupt_init`）。正式 stdio 由 `01log/print` 统一实现格式化与扫描并调用所选
+provider 的 `raw_putc` / `raw_getc`；`early_*` 接口固定调用始终存在的
+`early_raw_putc` / `early_raw_getc` 轮询通道，不受 provider 选择影响。
 
 当前 DAG 为：
 
@@ -241,7 +244,8 @@ Rust 不使用 `.layer.ld` 表达 crate 依赖。每层提供一个轻量 facade
 
 - `shyos-arch` 位于 `00arch`，重新导出 board、irq、rand、uart、shutdown。
 - `shyos-log` 位于 `01log`，重新导出 shyos-arch、print、panic。
-- `shyos-core` 位于 `02core`，重新导出 shyos-log、error、string_no_alloc、trap。
+- `shyos-core` 位于 `02core`，重新导出 shyos-log、error、string_no_alloc、
+  ringbuffer_no_alloc、trap。
 - `shyos-basic` 位于 `03basic`，重新导出 shyos-core、obj、result、alloc。
 - `shyos-data-structure` 位于 `04data_structure`，重新导出 shyos-basic、vec、
   string。

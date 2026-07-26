@@ -34,13 +34,11 @@ SHYOS_DEFINES += SHYOS_ALLOCATOR_SIMPLE
 # Future providers can be added directly, for example:
 # SHYOS_DEFINES += SHYOS_ALLOCATOR_VM
 
-# ---- stdio ----
-# early_stdio 始终存在；这里只选择无前缀正式 stdio 接口的 provider。
-# SHYOS_STDIO_EARLY: 将正式 stdio 映射到 early_stdio。
-SHYOS_DEFINES += SHYOS_STDIO_EARLY
+# ---- uart ----
+# early_stdio 固定轮询；这里选择正式 stdio 使用的 raw UART provider。
+SHYOS_DEFINES += SHYOS_UART_POLLING
 
-# Future providers can be added directly, for example:
-# SHYOS_DEFINES += SHYOS_STDIO_INTERRUPT
+# SHYOS_DEFINES += SHYOS_UART_INTERRUPT
 
 # ---- scheduler ----
 

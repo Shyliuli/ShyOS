@@ -30,6 +30,23 @@
 #define UART_MSR 6 /* Modem Status Register */
 #define UART_SCR 7 /* Scratch Register */
 
+/* Interrupt Enable Register bits */
+#define UART_IER_RX_AVAILABLE (1u << 0)
+#define UART_IER_TX_EMPTY     (1u << 1)
+
+/* Interrupt Identification Register bits / IDs */
+#define UART_IIR_NO_PENDING   (1u << 0)
+#define UART_IIR_ID_MASK      0x0eu
+#define UART_IIR_TX_EMPTY     0x02u
+#define UART_IIR_RX_AVAILABLE 0x04u
+#define UART_IIR_LINE_STATUS  0x06u
+#define UART_IIR_RX_TIMEOUT   0x0cu
+
+/* FIFO Control Register bits */
+#define UART_FCR_ENABLE   (1u << 0)
+#define UART_FCR_CLEAR_RX (1u << 1)
+#define UART_FCR_CLEAR_TX (1u << 2)
+
 /* Line Status Register bits */
 #define UART_LSR_DR   (1u << 0) /* Data Ready */
 #define UART_LSR_OE   (1u << 1) /* Overrun Error */

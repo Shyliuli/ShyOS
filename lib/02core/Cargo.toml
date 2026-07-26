@@ -4,7 +4,7 @@
 [package]
 name = "shyos-core"
 version = "0.0.0"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]
@@ -15,4 +15,6 @@ crate-type = ["rlib"]
 shyos-log = { path = "../01log" }
 shyos-error = { path = "error" }
 string_no_alloc = { path = "string_no_alloc" }
+ringbuffer_no_alloc = { path = "ringbuffer_no_alloc" }
 shyos-trap = { path = "trap" }
+shyos-uart-interupt = { path = "uart_interupt" }

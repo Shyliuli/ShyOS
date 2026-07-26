@@ -16,6 +16,7 @@ $(OUT_DIR):
 
 $(PRINT_C_OBJ): early_stdio.c early_stdio.h \
 		$(SHYOS_ROOT)/lib/00arch/uart/uart.h \
+		$(SHYOS_ROOT)/lib/stdio/stdio.h \
 		$(SHYOS_CONFIG_STATE) | $(OUT_DIR)
 	$(CC) $(CFLAGS) -c -o $@ early_stdio.c
 
