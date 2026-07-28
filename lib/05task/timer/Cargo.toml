@@ -9,4 +9,5 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
-shyos-queue = {path = "../../04data_structure/queue"}
+shyos-binary-heap = {path = "../../04data_structure/binary_heap"}
+shyos-time = {path = "../../00arch/time"}

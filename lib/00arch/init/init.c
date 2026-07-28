@@ -23,9 +23,8 @@
 #include "alloc.h"
 #include "board.h"
 #endif
-#if defined(SHYOS_00)&&!defined(SHYOS_BACKEND_LINUX_USER)
-/*前向声明 init_time()符号*/
-	void init_time();
+#if defined(SHYOS_00)
+#include "time.h"
 #endif
 #if defined(SHYOS_02)&&!defined(SHYOS_BACKEND_LINUX_USER)
 /*前向声明 trap_entry符号*/
@@ -38,7 +37,7 @@ i32 init_trap_entry(usize entry);
 
 void _shy_os_init(void)
 {
-#if defined(SHYOS_00)&&!defined(SHYOS_BACKEND_LINUX_USER)
+#if defined(SHYOS_00)
 	init_time();
 #endif
 #if !defined(SHYOS_ALLOCATOR_NONE)

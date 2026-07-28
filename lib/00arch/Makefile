@@ -14,12 +14,15 @@ RAND_DIR := rand
 SHUTDOWN_DIR := shutdown
 IRQ_DIR := irq
 TIME_DIR := time
+ATOMIC_DIR := atomic
 
 INIT_C_OBJ := $(INIT_DIR)/$(SHYOS_TARGET_DIR)/init_c.o
 UART_LINUX_C_OBJ := $(UART_DIR)/$(SHYOS_TARGET_DIR)/linux_user_c.o
 RAND_C_OBJ := $(RAND_DIR)/$(SHYOS_TARGET_DIR)/rand_c.o
 SHUTDOWN_C_OBJ := $(SHUTDOWN_DIR)/$(SHYOS_TARGET_DIR)/shutdown_c.o
 IRQ_C_OBJ := $(IRQ_DIR)/$(SHYOS_TARGET_DIR)/$(BACKEND)/irq_c.o
+ATOMIC_C_OBJ := $(ATOMIC_DIR)/$(SHYOS_TARGET_DIR)/atomic_c.o
+TIME_LINUX_C_OBJ := $(TIME_DIR)/$(SHYOS_TARGET_DIR)/time_linux_user_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_00arch_rust
@@ -28,6 +31,7 @@ LAYER_OBJS := \
 	$(INIT_S_OBJ) \
 	$(INIT_C_OBJ) \
 	$(IRQ_C_OBJ) \
+	$(ATOMIC_C_OBJ) \
 	$(RAND_C_OBJ) \
 	$(SHUTDOWN_C_OBJ)
 else
@@ -35,6 +39,8 @@ LAYER_OBJS := \
 	$(INIT_C_OBJ) \
 	$(IRQ_C_OBJ) \
 	$(UART_LINUX_C_OBJ) \
+	$(ATOMIC_C_OBJ) \
+	$(TIME_LINUX_C_OBJ) \
 	$(RAND_C_OBJ) \
 	$(SHUTDOWN_C_OBJ)
 endif
@@ -64,5 +70,6 @@ clean:
 	$(MAKE) -C $(RAND_DIR) clean
 	$(MAKE) -C $(SHUTDOWN_DIR) clean
 	$(MAKE) -C $(TIME_DIR) clean
+	$(MAKE) -C $(ATOMIC_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

@@ -6,4 +6,6 @@
 
 - `error`：Linux 通用 errno 数值、完整可读别名与 `ERROR_NO_VALUE` 扩展；
 - `string_no_alloc`：不分配内存的字符串和内存操作；
+- `spinlock`：关中断 raw spinlock；C 用 `IMPL_SHY_SPINLOCK(T)` 生成 `SpinlockT`，
+  Rust 为布局兼容的 `CSpinlock<T>`（首字段即可走同一套 lock/unlock）；
 - `trap`：表驱动 trap 分发（异常 / 中断 cause / PLIC external），C ABI 见 `trap.h`。

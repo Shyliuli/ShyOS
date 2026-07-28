@@ -1,4 +1,5 @@
 #include "alloc.h"
+#include "binary_heap.h"
 #include "deque.h"
 #include "obj.h"
 #include "early_stdio.h"
@@ -591,6 +592,57 @@ static i32 test_linked_list(void)
 	return 0;
 }
 
+static i32 i32_greater(const void *left, const void *right)
+{
+	i32 a = *(const i32 *)left;
+	i32 b = *(const i32 *)right;
+
+	if (a > b)
+		return 1;
+	if (a < b)
+		return -1;
+	return 0;
+}
+
+static i32 i32_less(const void *left, const void *right)
+{
+	return -i32_greater(left, right);
+}
+
+static i32 test_binary_heap(void)
+{
+	ResultBinaryHeap max_result = binary_heap_new(Type(i32), i32_greater);
+	ResultBinaryHeap min_result = binary_heap_new(Type(i32), i32_less);
+	BinaryHeap max_heap;
+	BinaryHeap min_heap;
+	i32 values[] = { 3, 1, 4, 1, 5, 9 };
+	i32 out;
+	usize i;
+
+	if (BinaryHeap_is_err(&max_result) || BinaryHeap_is_err(&min_result))
+		return -1;
+	max_heap = BinaryHeap_unwrap(&max_result);
+	min_heap = BinaryHeap_unwrap(&min_result);
+
+	for (i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
+		if (binary_heap_push(&max_heap, &values[i]) != 0 ||
+		    binary_heap_push(&min_heap, &values[i]) != 0)
+			return -1;
+	}
+	if (*(const i32 *)binary_heap_peek(&max_heap) != 9 ||
+	    *(const i32 *)binary_heap_peek(&min_heap) != 1)
+		return -1;
+	if (binary_heap_pop(&max_heap, &out) != 0 || out != 9 ||
+	    binary_heap_pop(&max_heap, &out) != 0 || out != 5 ||
+	    binary_heap_pop(&min_heap, &out) != 0 || out != 1 ||
+	    binary_heap_pop(&min_heap, &out) != 0 || out != 1)
+		return -1;
+
+	binary_heap_drop(&max_heap);
+	binary_heap_drop(&min_heap);
+	return 0;
+}
+
 i32 main(void)
 {
 	var inferred = 42;
@@ -606,7 +658,7 @@ i32 main(void)
 	    test_string_edit() != 0 || test_owned_nested_vec() != 0 ||
 	    test_let_cleanup() != 0 || test_result_string_vec() != 0 ||
 	    test_hashtable() != 0 || test_hashset() != 0 ||
-	    test_linked_list() != 0)
+	    test_linked_list() != 0 || test_binary_heap() != 0)
 		return 1;
 
 	block = malloc(32);

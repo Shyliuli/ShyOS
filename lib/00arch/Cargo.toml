@@ -14,7 +14,8 @@ crate-type = ["rlib"]
 [dependencies]
 board = { path = "../board" }
 irq = { path = "irq" }
+shyos-atomic = { path = "atomic" }
 shyos-rand = { path = "rand" }
 shutdown = { path = "shutdown" }
 uart = { path = "uart" }
-time = { path = "time" }
+shyos-time = { path = "time" }

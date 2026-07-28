@@ -22,3 +22,4 @@ shyos-ringbuffer = { path = "ringbuffer" }
 shyos-stack = { path = "stack" }
 shyos-queue = { path = "queue" }
 shyos-linked-list = { path = "linked_list" }
+shyos-binary-heap = { path = "binary_heap" }

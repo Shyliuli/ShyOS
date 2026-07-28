@@ -35,6 +35,9 @@ QUEUE_C_OBJ := $(QUEUE_DIR)/$(SHYOS_TARGET_DIR)/queue_c.o
 LINKED_LIST_DIR := linked_list
 LINKED_LIST_C_OBJ := $(LINKED_LIST_DIR)/$(SHYOS_TARGET_DIR)/linked_list_c.o
 
+BINARY_HEAP_DIR := binary_heap
+BINARY_HEAP_C_OBJ := $(BINARY_HEAP_DIR)/$(SHYOS_TARGET_DIR)/binary_heap_c.o
+
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_04data_structure_rust
 LAYER_OBJS := \
@@ -47,7 +50,8 @@ LAYER_OBJS := \
 	$(RINGBUFFER_C_OBJ) \
 	$(STACK_C_OBJ) \
 	$(QUEUE_C_OBJ) \
-	$(LINKED_LIST_C_OBJ)
+	$(LINKED_LIST_C_OBJ) \
+	$(BINARY_HEAP_C_OBJ)
 
 .PHONY: clean
 
@@ -69,5 +73,6 @@ clean:
 	$(MAKE) -C $(STACK_DIR) clean
 	$(MAKE) -C $(QUEUE_DIR) clean
 	$(MAKE) -C $(LINKED_LIST_DIR) clean
+	$(MAKE) -C $(BINARY_HEAP_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

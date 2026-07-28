@@ -177,10 +177,15 @@ dependencies = [
  "board",
  "irq",
  "shutdown",
+ "shyos-atomic",
  "shyos-rand",
- "time",
+ "shyos-time",
  "uart",
 ]
+
+[[package]]
+name = "shyos-atomic"
+version = "0.0.0"
 
 [[package]]
 name = "shyos-basic"
@@ -194,12 +199,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "shyos-binary-heap"
+version = "0.0.0"
+dependencies = [
+ "shyos-obj",
+ "shyos-rawbuf",
+ "shyos-result",
+]
+
+[[package]]
 name = "shyos-core"
 version = "0.0.0"
 dependencies = [
  "ringbuffer_no_alloc",
  "shyos-error",
  "shyos-log",
+ "shyos-spinlock",
  "shyos-trap",
  "shyos-uart-interupt",
  "string_no_alloc",
@@ -210,6 +225,7 @@ name = "shyos-data-structure"
 version = "0.0.0"
 dependencies = [
  "shyos-basic",
+ "shyos-binary-heap",
  "shyos-deque",
  "shyos-hashtable",
  "shyos-linked-list",
@@ -303,6 +319,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "shyos-spinlock"
+version = "0.0.0"
+
+[[package]]
 name = "shyos-stack"
 version = "0.0.0"
 dependencies = [
@@ -314,6 +334,30 @@ dependencies = [
 [[package]]
 name = "shyos-stdio"
 version = "0.0.0"
+
+[[package]]
+name = "shyos-task"
+version = "0.0.0"
+dependencies = [
+ "shyos-data-structure",
+ "shyos-timer",
+]
+
+[[package]]
+name = "shyos-time"
+version = "0.1.0"
+dependencies = [
+ "riscv",
+ "sbi-rt",
+]
+
+[[package]]
+name = "shyos-timer"
+version = "0.0.0"
+dependencies = [
+ "shyos-binary-heap",
+ "shyos-time",
+]
 
 [[package]]
 name = "shyos-trap"
@@ -370,14 +414,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "time"
-version = "0.1.0"
-dependencies = [
- "riscv",
- "sbi-rt",
 ]
 
 [[package]]

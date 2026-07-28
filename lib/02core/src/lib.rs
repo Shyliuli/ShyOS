@@ -8,6 +8,7 @@ pub use shyos_log as log;
 pub use shyos_log::arch;
 pub use shyos_log::{panic, print};
 pub use ringbuffer_no_alloc;
+pub use shyos_spinlock as spinlock;
 pub use shyos_trap as trap;
 pub use shyos_uart_interupt as uart_interupt;
 pub use string_no_alloc;

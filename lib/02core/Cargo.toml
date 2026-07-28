@@ -16,5 +16,6 @@ shyos-log = { path = "../01log" }
 shyos-error = { path = "error" }
 string_no_alloc = { path = "string_no_alloc" }
 ringbuffer_no_alloc = { path = "ringbuffer_no_alloc" }
+shyos-spinlock = { path = "spinlock" }
 shyos-trap = { path = "trap" }
 shyos-uart-interupt = { path = "uart_interupt" }

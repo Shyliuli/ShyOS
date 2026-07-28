@@ -16,13 +16,16 @@ RB_C_OBJ := $(RB_DIR)/$(SHYOS_TARGET_DIR)/ringbuffer_no_alloc_c.o
 TRAP_DIR := trap
 TRAP_S_OBJ := $(TRAP_DIR)/$(SHYOS_TARGET_DIR)/trap.o
 
+SPINLOCK_DIR := spinlock
+SPINLOCK_C_OBJ := $(SPINLOCK_DIR)/$(SHYOS_TARGET_DIR)/spinlock_c.o
+
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_02core_rust
 
 ifeq ($(BACKEND),linux_user)
-LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ)
+LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(SPINLOCK_C_OBJ)
 else
-LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(TRAP_S_OBJ)
+LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(TRAP_S_OBJ) $(SPINLOCK_C_OBJ)
 endif
 
 .PHONY: clean
@@ -39,5 +42,6 @@ clean:
 	$(MAKE) -C $(STRING_DIR) clean
 	$(MAKE) -C $(RB_DIR) clean
 	$(MAKE) -C $(TRAP_DIR) clean
+	$(MAKE) -C $(SPINLOCK_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

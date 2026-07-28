@@ -5,7 +5,8 @@
 
 pub use board;
 pub use irq;
+pub use shyos_atomic as atomic;
 pub use shutdown;
 pub use shyos_rand as rand;
-pub use time;
+pub use shyos_time as time;
 pub use uart;

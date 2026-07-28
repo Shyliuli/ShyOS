@@ -10,8 +10,8 @@ use shyos_data_structure::simple_alloc::HeapBox;
 use shyos_data_structure::string::CString;
 use shyos_data_structure::string_no_alloc::MemExt;
 use shyos_data_structure::{
-    error::ERROR_NO_VALUE, hashtable::CHashSet, hashtable::CHashTable, CDeque,
-    CLinkedList, CQueue, CRingBuffer, CResult, CStack, CVec,
+    error::ERROR_NO_VALUE, hashtable::CHashSet, hashtable::CHashTable, CBinaryHeap, CDeque,
+    CLinkedList, CQueue, CRingBuffer, CResult, CStack, CVec, HeapOrder,
 };
 
 static DROP_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -250,6 +250,36 @@ pub extern "C" fn main() -> i32 {
         || stack.pop() != CResult::Ok(2)
     {
         return 59;
+    }
+
+    let mut max_heap = match CBinaryHeap::new(HeapOrder::Max) {
+        CResult::Ok(heap) => heap,
+        CResult::Err(_) => return 77,
+    };
+    if max_heap.push(3u32).is_err()
+        || max_heap.push(1).is_err()
+        || max_heap.push(4).is_err()
+        || max_heap.peek() != Some(&4)
+        || max_heap.pop() != CResult::Ok(4)
+        || max_heap.pop() != CResult::Ok(3)
+        || max_heap.pop() != CResult::Ok(1)
+    {
+        return 78;
+    }
+
+    let mut min_heap = match CBinaryHeap::new(HeapOrder::Min) {
+        CResult::Ok(heap) => heap,
+        CResult::Err(_) => return 79,
+    };
+    if min_heap.push(3u32).is_err()
+        || min_heap.push(1).is_err()
+        || min_heap.push(4).is_err()
+        || min_heap.peek() != Some(&1)
+        || min_heap.pop() != CResult::Ok(1)
+        || min_heap.pop() != CResult::Ok(3)
+        || min_heap.pop() != CResult::Ok(4)
+    {
+        return 80;
     }
 
     let mut queue = match CQueue::new() {

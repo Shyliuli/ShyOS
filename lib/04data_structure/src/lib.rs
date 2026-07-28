@@ -8,6 +8,7 @@ pub use shyos_basic::{
     alloc, arch, c_try, core, error, log, obj, panic, print, result, simple_alloc, string_no_alloc,
     CResult,
 };
+pub use shyos_binary_heap::{self as binary_heap, CBinaryHeap, HeapOrder};
 pub use shyos_deque::{self as deque, CDeque};
 pub use shyos_hashtable::{self as hashtable, CHashSet, CHashTable};
 pub use shyos_linked_list::{self as linked_list, CLinkedList};

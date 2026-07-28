@@ -12,7 +12,8 @@ HOST_PROJECTS := \
 	test07_basic_rust \
 	test08_simple_alloc_c \
 	test11_data_structure_c \
-	test12_data_structure_rust
+	test12_data_structure_rust \
+	test14_spinlock_c
 
 QEMU_PROJECTS := \
 	test09_qemu_arch_c \
