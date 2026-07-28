@@ -71,7 +71,7 @@ struct TrapState(UnsafeCell<TrapEntry>);
 
 // 单 hart 表；注册与 dispatch 由调用方保证不并发踩踏。
 unsafe impl Sync for TrapState {}
-
+// 不可并发访问,init阶段顺序加入!
 static TRAP: TrapState = TrapState(UnsafeCell::new(TrapEntry {
     exception_handlers: [None; TRAP_EXCEPTION_MAX],
     cause_interrupt_table: [None; TRAP_INTERRUPT_MAX],

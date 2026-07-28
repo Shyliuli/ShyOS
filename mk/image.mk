@@ -56,6 +56,11 @@ endif
 IMAGE_LAYER_STAMP := \
 	$(SHYOS_ROOT)/lib/$(IMAGE_LAYER)/target/$(SHYOS_CONFIG_ID)/.$(IMAGE_LAYER_VARIANT).image.stamp
 QEMU_MEM ?= 256M
+# SHYOS_GDB=1: freeze the CPU at reset and open a gdb stub on :1234.
+QEMU_GDB_FLAGS :=
+ifeq ($(SHYOS_GDB),1)
+QEMU_GDB_FLAGS := -S -s
+endif
 
 .PHONY: build layer run clean print-config dag-html
 
@@ -89,8 +94,11 @@ $(IMAGE_BIN): $(IMAGE_ELF)
 
 run: build
 ifeq ($(BACKEND),qemu_virt)
+ifeq ($(SHYOS_GDB),1)
+	@echo "QEMU frozen at reset; connect with: $(CROSS)gdb $(IMAGE_ELF) -ex 'target remote :1234'"
+endif
 	qemu-system-riscv64 -machine virt -m $(QEMU_MEM) -nographic \
-		-bios none -kernel $(IMAGE_ELF)
+		-bios default -kernel $(IMAGE_ELF) $(QEMU_GDB_FLAGS)
 else
 	$(IMAGE_ELF)
 endif

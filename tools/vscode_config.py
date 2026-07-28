@@ -24,6 +24,8 @@ def main() -> int:
     parser.add_argument("--rust-target", required=True)
     parser.add_argument("--rustflags", default="")
     parser.add_argument("--defines", default="")
+    parser.add_argument("--kernel-elf", default="")
+    parser.add_argument("--app-elf", default="")
     args = parser.parse_args()
 
     root = args.root.resolve()
@@ -61,6 +63,59 @@ def main() -> int:
             "version": 4,
         },
     )
+
+    # GDB attach configurations for `make run-kernel-gdb` / `make run-app-gdb`
+    # (QEMU frozen at reset with a gdb stub on :1234). Each configuration
+    # starts its image's gdb run target via a background task first, then
+    # attaches once the task prints the frozen banner.
+    gdb_images = [
+        (name, elf)
+        for name, elf in [("kernel", args.kernel_elf), ("app", args.app_elf)]
+        if elf
+    ]
+    configurations = [
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": f"Attach {name} (QEMU :1234)",
+            "executable": elf,
+            "target": "localhost:1234",
+            "remote": True,
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText",
+            "preLaunchTask": f"run-{name}-gdb",
+        }
+        for name, elf in gdb_images
+    ]
+    if configurations:
+        write_json(
+            vscode_dir / "launch.json",
+            {"version": "0.2.0", "configurations": configurations},
+        )
+        write_json(
+            vscode_dir / "tasks.json",
+            {
+                "version": "2.0.0",
+                "tasks": [
+                    {
+                        "label": f"run-{name}-gdb",
+                        "type": "shell",
+                        "command": f"make run-{name}-gdb",
+                        "isBackground": True,
+                        "presentation": {"reveal": "always", "panel": "dedicated"},
+                        "problemMatcher": {
+                            "pattern": {"regexp": "^$"},
+                            "background": {
+                                "activeOnStart": True,
+                                "beginsPattern": ".*",
+                                "endsPattern": "QEMU frozen at reset",
+                            },
+                        },
+                    }
+                    for name, _ in gdb_images
+                ],
+            },
+        )
     return 0
 
 

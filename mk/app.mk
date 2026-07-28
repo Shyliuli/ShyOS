@@ -24,7 +24,9 @@ vscode-settings:
 		--c-compiler "$(CC_PATH)" \
 		--rust-target "$(RUST_TARGET)" \
 		--rustflags "$(RUSTFLAGS)" \
-		--defines "$(SHYOS_DEFINES)"
+		--defines "$(SHYOS_DEFINES)" \
+		--kernel-elf "kernel/target/kernel.elf" \
+		--app-elf "$(shell realpath --relative-to=$(SHYOS_ROOT) $(CURDIR))/target/$(IMAGE_NAME).elf"
 
 vscode-compile-commands:
 	@command -v $(BEAR) >/dev/null 2>&1 || { \

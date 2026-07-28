@@ -3,14 +3,15 @@
 //本项目的 kernel 实现
 
 #include "shy_type.h"
+#include "early_stdio.h"
+#include "time.h"
 
 i32 main(void)
 {
-#if defined(SHYOS_BACKEND_LINUX_USER)
-    return 0;
-#else
-    for (;;) {
-        __asm__ volatile ("wfi");
+    early_printf("Welcome to SHYOS!\n");
+   
+    for(int i=0;i<10;i++){
+        early_printf("time:%ld\n",(i64)get_time());
     }
-#endif
+    return 0;
 }

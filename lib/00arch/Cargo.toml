@@ -17,3 +17,4 @@ irq = { path = "irq" }
 shyos-rand = { path = "rand" }
 shutdown = { path = "shutdown" }
 uart = { path = "uart" }
+time = { path = "time" }

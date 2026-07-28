@@ -1,0 +1,12 @@
+[package]
+name = "shyos-timer"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+shyos-queue = {path = "../../04data_structure/queue"}

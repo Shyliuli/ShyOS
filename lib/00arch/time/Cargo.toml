@@ -1,0 +1,13 @@
+[package]
+name = "time"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+path = "src/main.rs"
+crate-type = ["rlib"]
+
+[target.'cfg(any(target_arch = "riscv32", target_arch = "riscv64"))'.dependencies]
+riscv.workspace = true
+sbi-rt.workspace = true

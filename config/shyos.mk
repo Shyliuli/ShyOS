@@ -52,6 +52,7 @@ SHYOS_DEFINES += SHYOS_01
 SHYOS_DEFINES += SHYOS_02
 SHYOS_DEFINES += SHYOS_03
 SHYOS_DEFINES += SHYOS_04
+SHYOS_DEFINES += SHYOS_05
 # ..... 
 
 # Future providers can be added directly, for example:

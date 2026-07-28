@@ -7,4 +7,5 @@ pub use board;
 pub use irq;
 pub use shutdown;
 pub use shyos_rand as rand;
+pub use time;
 pub use uart;

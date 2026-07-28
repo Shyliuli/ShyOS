@@ -13,6 +13,7 @@ UART_DIR := uart
 RAND_DIR := rand
 SHUTDOWN_DIR := shutdown
 IRQ_DIR := irq
+TIME_DIR := time
 
 INIT_C_OBJ := $(INIT_DIR)/$(SHYOS_TARGET_DIR)/init_c.o
 UART_LINUX_C_OBJ := $(UART_DIR)/$(SHYOS_TARGET_DIR)/linux_user_c.o
@@ -62,5 +63,6 @@ clean:
 	$(MAKE) -C $(UART_DIR) clean
 	$(MAKE) -C $(RAND_DIR) clean
 	$(MAKE) -C $(SHUTDOWN_DIR) clean
+	$(MAKE) -C $(TIME_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

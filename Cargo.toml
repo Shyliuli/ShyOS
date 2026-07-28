@@ -9,6 +9,7 @@ members = [
     "lib/00arch/rand",
     "lib/00arch/uart",
     "lib/00arch/shutdown",
+    "lib/00arch/time",
     "lib/01log",
     "lib/01log/print",
     "lib/01log/panic",
@@ -38,6 +39,10 @@ members = [
     "app/*",
 ]
 resolver = "2"
+
+[workspace.dependencies]
+riscv = "0.16.1"
+sbi-rt = "0.0.4"
 
 [profile.dev]
 panic = "abort"

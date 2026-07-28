@@ -13,7 +13,7 @@ IMAGE_LAYERS := $(shell python3 $(LAYER_TOOL) --root $(SHYOS_ROOT) list --image)
 
 .NOTPARALLEL: all
 
-.PHONY: all app kernel lib clean run-app run-kernel print-config \
+.PHONY: all app kernel lib clean run-app run-kernel run-app-gdb run-kernel-gdb print-config \
 	print-kernel-config check-layers dag dag-html analyze host-test \
 	image-test run-image-test qemu-image-test vscode vscode-settings \
 	vscode-compile-commands new-app $(addprefix layer-,$(IMAGE_LAYERS))
@@ -31,6 +31,12 @@ run-app:
 
 run-kernel:
 	$(MAKE) -C $(KERN_DIR) run
+
+run-app-gdb:
+	$(MAKE) -C $(APP_DIR) run CONFIG=GDB SHYOS_GDB=1
+
+run-kernel-gdb:
+	$(MAKE) -C $(KERN_DIR) run CONFIG=GDB SHYOS_GDB=1
 
 print-config:
 	$(MAKE) -C $(APP_DIR) print-config

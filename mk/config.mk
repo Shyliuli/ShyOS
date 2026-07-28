@@ -25,12 +25,16 @@ ifeq ($(CONFIG),DEBUG)
 C_BUILD_FLAGS := -O0 -g3
 CARGO_PROFILE := debug
 CARGO_PROFILE_ARGS :=
+else ifeq ($(CONFIG),GDB)
+C_BUILD_FLAGS := -Og -g3
+CARGO_PROFILE := debug
+CARGO_PROFILE_ARGS :=
 else ifeq ($(CONFIG),RELEASE)
 C_BUILD_FLAGS := -O2
 CARGO_PROFILE := release
 CARGO_PROFILE_ARGS := --release
 else
-$(error CONFIG must be DEBUG or RELEASE; got: $(CONFIG))
+$(error CONFIG must be DEBUG, GDB or RELEASE; got: $(CONFIG))
 endif
 
 SHYOS_DEFINES := $(strip $(SHYOS_DEFINES))

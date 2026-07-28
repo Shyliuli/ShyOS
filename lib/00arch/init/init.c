@@ -23,8 +23,10 @@
 #include "alloc.h"
 #include "board.h"
 #endif
-
-
+#if defined(SHYOS_00)&&!defined(SHYOS_BACKEND_LINUX_USER)
+/*前向声明 init_time()符号*/
+	void init_time();
+#endif
 #if defined(SHYOS_02)&&!defined(SHYOS_BACKEND_LINUX_USER)
 /*前向声明 trap_entry符号*/
 //HACK: 这里应当改为注册或者配置机制，而非低层知道高层
@@ -33,8 +35,12 @@ i32 init_trap_entry(usize entry);
 #endif
 
 
+
 void _shy_os_init(void)
 {
+#if defined(SHYOS_00)&&!defined(SHYOS_BACKEND_LINUX_USER)
+	init_time();
+#endif
 #if !defined(SHYOS_ALLOCATOR_NONE)
 	//内存分配器
 	(void)heap_init(HEAP_START, (usize)HEAP_SIZE);
@@ -45,6 +51,7 @@ void _shy_os_init(void)
 
 	init_trap_entry((usize)trap_entry);
 #endif
+	//early uart上为忙等待，无需条件编译
 	(void)uart_interupt_init();
 }
 
