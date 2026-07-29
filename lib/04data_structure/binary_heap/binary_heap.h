@@ -38,5 +38,9 @@ i32 binary_heap_push_raw(BinaryHeap *heap, const void *value);
 i32 binary_heap_pop(BinaryHeap *heap, void *out);
 const void *binary_heap_peek(const BinaryHeap *heap);
 void binary_heap_clear(BinaryHeap *heap);
-
+//eq函数:相同返回1 不同返回0. 删除掉和target相同的第一个成员
+int binary_heap_remove(BinaryHeap *heap,                                                                                                                               
+    bool (*eq)(const void *elem1,const void *elem2),
+	const void* target
+);
 #endif /* SHYOS_BINARY_HEAP_H */

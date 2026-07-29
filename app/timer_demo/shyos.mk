@@ -1,0 +1,28 @@
+# timer_demo image 配置：linux_user + 05task。
+
+CONFIG=DEBUG
+
+SHYOS_DEFINES :=
+
+# ---- backend ----
+SHYOS_DEFINES += SHYOS_BACKEND_LINUX_USER
+
+# ---- allocator ----
+SHYOS_DEFINES += SHYOS_ALLOCATOR_SIMPLE
+
+# ---- uart ----
+SHYOS_DEFINES += SHYOS_UART_POLLING
+
+# ---- scheduler ----
+SHYOS_DEFINES += SHYOS_SCHEDULER_NONE
+
+# ---- layer ----
+SHYOS_DEFINES += SHYOS_00
+SHYOS_DEFINES += SHYOS_01
+SHYOS_DEFINES += SHYOS_02
+SHYOS_DEFINES += SHYOS_03
+SHYOS_DEFINES += SHYOS_04
+SHYOS_DEFINES += SHYOS_05
+
+# ---- image layer ----
+IMAGE_LAYER := 05task

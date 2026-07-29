@@ -7,6 +7,7 @@ members = [
     "lib/board",
     "lib/00arch/atomic",
     "lib/00arch/irq",
+    "lib/00arch/linux_user_signal",
     "lib/00arch/rand",
     "lib/00arch/uart",
     "lib/00arch/shutdown",
@@ -16,6 +17,7 @@ members = [
     "lib/01log/panic",
     "lib/02core",
     "lib/02core/error",
+    "lib/02core/linux_user_trap",
     "lib/02core/string_no_alloc",
     "lib/02core/ringbuffer_no_alloc",
     "lib/02core/spinlock",
@@ -43,6 +45,8 @@ members = [
     "lib/stdio",
     "app/*",
 ]
+# C-only app 无 Rust image crate，不参与 workspace
+exclude = ["app/timer_demo"]
 resolver = "2"
 
 [workspace.dependencies]

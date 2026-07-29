@@ -159,6 +159,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "shyos-05task-rust"
+version = "0.0.0"
+dependencies = [
+ "shyos-task",
+]
+
+[[package]]
 name = "shyos-2048"
 version = "0.0.0"
 dependencies = [
@@ -178,6 +185,7 @@ dependencies = [
  "irq",
  "shutdown",
  "shyos-atomic",
+ "shyos-linux-user-signal",
  "shyos-rand",
  "shyos-time",
  "uart",
@@ -213,6 +221,7 @@ version = "0.0.0"
 dependencies = [
  "ringbuffer_no_alloc",
  "shyos-error",
+ "shyos-linux-user-trap",
  "shyos-log",
  "shyos-spinlock",
  "shyos-trap",
@@ -267,6 +276,14 @@ dependencies = [
  "shyos-rawbuf",
  "shyos-result",
 ]
+
+[[package]]
+name = "shyos-linux-user-signal"
+version = "0.0.0"
+
+[[package]]
+name = "shyos-linux-user-trap"
+version = "0.0.0"
 
 [[package]]
 name = "shyos-log"
@@ -356,7 +373,9 @@ name = "shyos-timer"
 version = "0.0.0"
 dependencies = [
  "shyos-binary-heap",
+ "shyos-spinlock",
  "shyos-time",
+ "shyos-trap",
 ]
 
 [[package]]

@@ -19,11 +19,16 @@ TRAP_S_OBJ := $(TRAP_DIR)/$(SHYOS_TARGET_DIR)/trap.o
 SPINLOCK_DIR := spinlock
 SPINLOCK_C_OBJ := $(SPINLOCK_DIR)/$(SHYOS_TARGET_DIR)/spinlock_c.o
 
+LU_TRAP_DIR := linux_user_trap
+LU_TRAP_C_OBJ := $(LU_TRAP_DIR)/$(SHYOS_TARGET_DIR)/linux_user_trap_c.o
+LU_TRAP_S_OBJ := $(LU_TRAP_DIR)/$(SHYOS_TARGET_DIR)/signal_restorer.o
+
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_02core_rust
 
 ifeq ($(BACKEND),linux_user)
-LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(SPINLOCK_C_OBJ)
+LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(SPINLOCK_C_OBJ) \
+	$(LU_TRAP_C_OBJ) $(LU_TRAP_S_OBJ)
 else
 LAYER_OBJS := $(STRING_C_OBJ) $(RB_C_OBJ) $(TRAP_S_OBJ) $(SPINLOCK_C_OBJ)
 endif
@@ -43,5 +48,6 @@ clean:
 	$(MAKE) -C $(RB_DIR) clean
 	$(MAKE) -C $(TRAP_DIR) clean
 	$(MAKE) -C $(SPINLOCK_DIR) clean
+	$(MAKE) -C $(LU_TRAP_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

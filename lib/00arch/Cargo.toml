@@ -15,6 +15,7 @@ crate-type = ["rlib"]
 board = { path = "../board" }
 irq = { path = "irq" }
 shyos-atomic = { path = "atomic" }
+shyos-linux-user-signal = { path = "linux_user_signal" }
 shyos-rand = { path = "rand" }
 shutdown = { path = "shutdown" }
 uart = { path = "uart" }

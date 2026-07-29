@@ -14,7 +14,8 @@ IRQ_DEPS := \
 	$(SHYOS_ROOT)/lib/board/qemu_virt/qemu.h
 else ifeq ($(BACKEND),linux_user)
 IRQ_SRC := irq_linux_user.c
-IRQ_DEPS :=
+IRQ_DEPS := \
+	$(SHYOS_ROOT)/lib/00arch/linux_user_signal/linux_user_signal.h
 else
 $(error 00arch/irq has no $(BACKEND) backend)
 endif

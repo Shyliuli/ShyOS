@@ -134,10 +134,15 @@ dependencies = [
  "board",
  "irq",
  "shutdown",
+ "shyos-atomic",
  "shyos-rand",
- "time",
+ "shyos-time",
  "uart",
 ]
+
+[[package]]
+name = "shyos-atomic"
+version = "0.0.0"
 
 [[package]]
 name = "shyos-basic"
@@ -166,6 +171,7 @@ dependencies = [
  "ringbuffer_no_alloc",
  "shyos-error",
  "shyos-log",
+ "shyos-spinlock",
  "shyos-trap",
  "shyos-uart-interupt",
  "string_no_alloc",
@@ -270,6 +276,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "shyos-spinlock"
+version = "0.0.0"
+
+[[package]]
 name = "shyos-stack"
 version = "0.0.0"
 dependencies = [
@@ -281,6 +291,14 @@ dependencies = [
 [[package]]
 name = "shyos-stdio"
 version = "0.0.0"
+
+[[package]]
+name = "shyos-time"
+version = "0.1.0"
+dependencies = [
+ "riscv",
+ "sbi-rt",
+]
 
 [[package]]
 name = "shyos-trap"
@@ -344,14 +362,6 @@ name = "test12-data-structure-rust"
 version = "0.0.0"
 dependencies = [
  "shyos-data-structure",
-]
-
-[[package]]
-name = "time"
-version = "0.1.0"
-dependencies = [
- "riscv",
- "sbi-rt",
 ]
 
 [[package]]

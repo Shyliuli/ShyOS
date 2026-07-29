@@ -32,6 +32,11 @@
 void trap_entry(void);
 i32 init_trap_entry(usize entry);
 #endif
+#if defined(SHYOS_05)
+/*前向声明 timer_init符号*/
+//HACK: 同 trap_entry，应当改为注册或者配置机制，而非低层知道高层
+void timer_init(void);
+#endif
 
 
 
@@ -52,6 +57,10 @@ void _shy_os_init(void)
 #endif
 	//early uart上为忙等待，无需条件编译
 	(void)uart_interupt_init();
+#if defined(SHYOS_05)
+	/*软件定时器：构造 STATIC_TIMER，QEMU virt 下注册时钟中断*/
+	timer_init();
+#endif
 }
 
 #if defined(SHYOS_BACKEND_LINUX_USER)

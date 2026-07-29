@@ -58,35 +58,68 @@ def main() -> int:
                     "name": "ShyOS",
                     "compileCommands": "${workspaceFolder}/compile_commands.json",
                     "compilerPath": args.c_compiler,
+                    "defines": args.defines.split(),
                 }
             ],
             "version": 4,
         },
     )
 
-    # GDB attach configurations for `make run-kernel-gdb` / `make run-app-gdb`
-    # (QEMU frozen at reset with a gdb stub on :1234). Each configuration
-    # starts its image's gdb run target via a background task first, then
-    # attaches once the task prints the frozen banner.
+    # 调试配置按 backend 分两种形态：
+    #   qemu_virt : attach QEMU gdb stub（:1234），由后台任务先起 QEMU
+    #   linux_user: 普通本地 launch，直接调试宿主机 ELF
+    defines = set(args.defines.split())
     gdb_images = [
         (name, elf)
         for name, elf in [("kernel", args.kernel_elf), ("app", args.app_elf)]
         if elf
     ]
-    configurations = [
-        {
-            "type": "gdb",
-            "request": "attach",
-            "name": f"Attach {name} (QEMU :1234)",
-            "executable": elf,
-            "target": "localhost:1234",
-            "remote": True,
-            "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText",
-            "preLaunchTask": f"run-{name}-gdb",
-        }
-        for name, elf in gdb_images
-    ]
+    if "SHYOS_BACKEND_LINUX_USER" in defines:
+        configurations = [
+            {
+                "type": "gdb",
+                "request": "launch",
+                "name": f"Debug {name} (linux user)",
+                "target": f"${{workspaceRoot}}/{elf}",
+                "cwd": "${workspaceRoot}",
+                "valuesFormatting": "parseText",
+            }
+            for name, elf in gdb_images
+        ]
+        tasks = []
+    else:
+        configurations = [
+            {
+                "type": "gdb",
+                "request": "attach",
+                "name": f"Attach {name} (QEMU :1234)",
+                "executable": elf,
+                "target": "localhost:1234",
+                "remote": True,
+                "cwd": "${workspaceRoot}",
+                "valuesFormatting": "parseText",
+                "preLaunchTask": f"run-{name}-gdb",
+            }
+            for name, elf in gdb_images
+        ]
+        tasks = [
+            {
+                "label": f"run-{name}-gdb",
+                "type": "shell",
+                "command": f"make run-{name}-gdb",
+                "isBackground": True,
+                "presentation": {"reveal": "always", "panel": "dedicated"},
+                "problemMatcher": {
+                    "pattern": {"regexp": "^$"},
+                    "background": {
+                        "activeOnStart": True,
+                        "beginsPattern": ".*",
+                        "endsPattern": "QEMU frozen at reset",
+                    },
+                },
+            }
+            for name, _ in gdb_images
+        ]
     if configurations:
         write_json(
             vscode_dir / "launch.json",
@@ -94,27 +127,7 @@ def main() -> int:
         )
         write_json(
             vscode_dir / "tasks.json",
-            {
-                "version": "2.0.0",
-                "tasks": [
-                    {
-                        "label": f"run-{name}-gdb",
-                        "type": "shell",
-                        "command": f"make run-{name}-gdb",
-                        "isBackground": True,
-                        "presentation": {"reveal": "always", "panel": "dedicated"},
-                        "problemMatcher": {
-                            "pattern": {"regexp": "^$"},
-                            "background": {
-                                "activeOnStart": True,
-                                "beginsPattern": ".*",
-                                "endsPattern": "QEMU frozen at reset",
-                            },
-                        },
-                    }
-                    for name, _ in gdb_images
-                ],
-            },
+            {"version": "2.0.0", "tasks": tasks},
         )
     return 0
 

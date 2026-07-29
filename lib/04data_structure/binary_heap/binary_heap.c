@@ -158,6 +158,37 @@ i32 binary_heap_pop(BinaryHeap *heap, void *out)
 	return 0;
 }
 
+int binary_heap_remove(BinaryHeap *heap,
+		       bool (*eq)(const void *elem1, const void *elem2),
+		       const void *target)
+{
+	usize i;
+
+	if (eq == NULL || target == NULL) {
+		return -1;
+	}
+	for (i = 0; i < heap->len; ++i) {
+		if (!eq(heap_ptr(heap, i), target)) {
+			continue;
+		}
+		heap_drop_item(heap, i);
+		heap->len--;
+		if (i < heap->len) {
+			memcpy(heap_ptr(heap, i), heap_ptr(heap, heap->len),
+				heap->elem.size);
+			if (i > 0 &&
+			    heap->cmp(heap_ptr(heap, i),
+				heap_ptr(heap, (i - 1) / 2)) > 0) {
+				sift_up(heap, i);
+			} else {
+				sift_down(heap, i);
+			}
+		}
+		return 0;
+	}
+	return -1;
+}
+
 const void *binary_heap_peek(const BinaryHeap *heap)
 {
 	if (heap->len == 0) {
@@ -241,3 +272,4 @@ ResultBinaryHeap binary_heap_clone(const BinaryHeap *source)
 	free(copy);
 	return BinaryHeapOk(value);
 }
+

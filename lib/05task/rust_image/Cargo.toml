@@ -1,0 +1,14 @@
+# C-only 05task image 的完整 Rust staticlib 闭包。
+
+[package]
+name = "shyos-05task-rust"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+shyos-task = { path = ".." }

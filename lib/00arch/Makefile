@@ -23,6 +23,8 @@ SHUTDOWN_C_OBJ := $(SHUTDOWN_DIR)/$(SHYOS_TARGET_DIR)/shutdown_c.o
 IRQ_C_OBJ := $(IRQ_DIR)/$(SHYOS_TARGET_DIR)/$(BACKEND)/irq_c.o
 ATOMIC_C_OBJ := $(ATOMIC_DIR)/$(SHYOS_TARGET_DIR)/atomic_c.o
 TIME_LINUX_C_OBJ := $(TIME_DIR)/$(SHYOS_TARGET_DIR)/time_linux_user_c.o
+SIGNAL_DIR := linux_user_signal
+SIGNAL_C_OBJ := $(SIGNAL_DIR)/$(SHYOS_TARGET_DIR)/linux_user_signal_c.o
 
 LAYER_ARCHIVE := $(OUT_DIR)/libshyos_$(LAYER).a
 LAYER_RUST_LIB := shyos_00arch_rust
@@ -41,6 +43,7 @@ LAYER_OBJS := \
 	$(UART_LINUX_C_OBJ) \
 	$(ATOMIC_C_OBJ) \
 	$(TIME_LINUX_C_OBJ) \
+	$(SIGNAL_C_OBJ) \
 	$(RAND_C_OBJ) \
 	$(SHUTDOWN_C_OBJ)
 endif
@@ -71,5 +74,6 @@ clean:
 	$(MAKE) -C $(SHUTDOWN_DIR) clean
 	$(MAKE) -C $(TIME_DIR) clean
 	$(MAKE) -C $(ATOMIC_DIR) clean
+	$(MAKE) -C $(SIGNAL_DIR) clean
 
 include $(SHYOS_ROOT)/mk/layer.mk

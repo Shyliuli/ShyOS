@@ -1,0 +1,13 @@
+# C 实现 linux_user_trap 的 Rust FFI 包装
+
+[package]
+name = "shyos-linux-user-trap"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]

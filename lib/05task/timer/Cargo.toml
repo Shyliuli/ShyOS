@@ -10,4 +10,6 @@ crate-type = ["rlib"]
 
 [dependencies]
 shyos-binary-heap = {path = "../../04data_structure/binary_heap"}
+shyos-spinlock = {path = "../../02core/spinlock"}
 shyos-time = {path = "../../00arch/time"}
+shyos-trap = {path = "../../02core/trap"}

@@ -8,9 +8,9 @@ use core::mem::{align_of, size_of, ManuallyDrop, MaybeUninit};
 use core::ptr;
 use shyos_obj::TypeDesc;
 use shyos_rawbuf::RawBuf;
-use shyos_result::{CResult, ERROR_INVALID_ARGUMENT, ERROR_NO_VALUE, ERROR_OUT_OF_MEMORY};
-
+pub use shyos_result::*;
 type HeapCmpFn = unsafe extern "C" fn(*const c_void, *const c_void) -> i32;
+type HeapEqFn = unsafe extern "C" fn(*const c_void, *const c_void) -> bool;
 
 #[repr(C)]
 #[doc(hidden)]
@@ -36,6 +36,13 @@ unsafe extern "C" {
 
     #[link_name = "binary_heap_peek"]
     fn c_binary_heap_peek(heap: *const RawBinaryHeap) -> *const c_void;
+
+    #[link_name = "binary_heap_remove"]
+    fn c_binary_heap_remove(
+        heap: *mut RawBinaryHeap,
+        eq: Option<HeapEqFn>,
+        target: *const c_void,
+    ) -> i32;
 
     #[link_name = "binary_heap_clear"]
     fn c_binary_heap_clear(heap: *mut RawBinaryHeap);
@@ -64,6 +71,12 @@ unsafe extern "C" fn cmp_ord_max<T: Ord>(left: *const c_void, right: *const c_vo
 
 unsafe extern "C" fn cmp_ord_min<T: Ord>(left: *const c_void, right: *const c_void) -> i32 {
     -cmp_ord_max::<T>(left, right)
+}
+
+unsafe extern "C" fn eq_partial<T: PartialEq>(elem: *const c_void, target: *const c_void) -> bool {
+    let elem = unsafe { &*elem.cast::<T>() };
+    let target = unsafe { &*target.cast::<T>() };
+    elem == target
 }
 
 fn type_desc<T>() -> TypeDesc {
@@ -131,7 +144,6 @@ impl<T: Ord> CBinaryHeap<T> {
     pub fn is_empty(&self) -> bool {
         self.raw.len == 0
     }
-
     pub fn reserve(&mut self, additional: usize) -> CResult<()> {
         if unsafe { c_binary_heap_reserve(&mut self.raw, additional) } == 0 {
             CResult::ok(())
@@ -167,6 +179,23 @@ impl<T: Ord> CBinaryHeap<T> {
 
     pub fn clear(&mut self) {
         unsafe { c_binary_heap_clear(&mut self.raw) }
+    }
+
+    pub fn remove(&mut self, target: T) -> CResult<()> {
+        let target = ManuallyDrop::new(target);
+        if unsafe {
+            c_binary_heap_remove(
+                &mut self.raw,
+                Some(eq_partial::<T>),
+                (&*target as *const T).cast::<c_void>(),
+            )
+        } == 0
+        {
+            CResult::ok(())
+        } else {
+            drop(ManuallyDrop::into_inner(target));
+            CResult::err(ERROR_NO_VALUE)
+        }
     }
 }
 
