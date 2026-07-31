@@ -12,5 +12,6 @@ path = "main.rs"
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]
+shyos-page-memory = { path = "../../lib/06page_memory" }
 shyos-data-structure = { path = "../../lib/04data_structure" }
 shyos-basic = { path = "../../lib/03basic" }

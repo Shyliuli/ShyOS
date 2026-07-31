@@ -4,6 +4,9 @@ use core::panic::PanicInfo;
 use shyos_basic::arch::rand::randint;
 use shyos_basic::result::*;
 use shyos_data_structure::CVec;
+//把所选最高层 facade 拉进 staticlib 闭包：未被引用的 dep 不会打进
+//staticlib，init.c 需要的 timer_init 等符号在 05/06 层 crate 里
+use shyos_page_memory as _;
 
 #[repr(C)]
 pub struct State {

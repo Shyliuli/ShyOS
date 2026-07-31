@@ -1,7 +1,7 @@
-# C-only 05task image 的完整 Rust staticlib 闭包。
+# C-only 05timer image 的完整 Rust staticlib 闭包。
 
 [package]
-name = "shyos-05task-rust"
+name = "shyos-05timer-rust"
 version = "0.0.0"
 edition = "2021"
 publish = false
@@ -11,4 +11,4 @@ path = "lib.rs"
 crate-type = ["staticlib"]
 
 [dependencies]
-shyos-task = { path = ".." }
+shyos_05timer = { path = ".." }

@@ -9,6 +9,8 @@
  *   SHYOS_ALLOCATOR_NONE  -> 跳过 heap_init
  *   否则                  -> heap_init(HEAP_START, HEAP_SIZE)
  *   uart_interupt_init()  -> 轮询 provider 为空实现，中断 provider 完成注册
+ *   page_memory_init()    -> NONE provider（默认）为空实现；
+ *                            实体 provider 接管 32MiB 堆之外的剩余内存，heap 只留 32MiB
  *
  * board 约定：
  *   HEAP_START != NULL  => 使用给定线性区
@@ -37,6 +39,9 @@ i32 init_trap_entry(usize entry);
 //HACK: 同 trap_entry，应当改为注册或者配置机制，而非低层知道高层
 void timer_init(void);
 #endif
+/*前向声明 page_memory_init符号*/
+//HACK: 同 trap_entry，应当改为注册或者配置机制，而非低层知道高层
+void page_memory_init(void);
 
 
 
@@ -47,8 +52,15 @@ void _shy_os_init(void)
 #endif
 #if !defined(SHYOS_ALLOCATOR_NONE)
 	//内存分配器
+#if defined(SHYOS_PMM_NONE)
 	(void)heap_init(HEAP_START, (usize)HEAP_SIZE);
+#else
+	/*实体 pmm provider：堆只留开头 32MiB，其余交给 pmm*/
+	(void)heap_init(HEAP_START, (usize)KERNEL_HEAP_SIZE);
 #endif
+#endif
+	//pmm：无条件调用，NONE provider 为空实现
+	page_memory_init();
 
 #if defined(SHYOS_02)&&!defined(SHYOS_BACKEND_LINUX_USER)
 	/*需init trap*/

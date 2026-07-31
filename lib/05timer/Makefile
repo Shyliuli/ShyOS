@@ -1,7 +1,7 @@
 SHYOS_ROOT ?= $(abspath ../..)
 include $(SHYOS_ROOT)/mk/config.mk
 
-LAYER := 05task
+LAYER := 05timer
 OUT_DIR := $(SHYOS_TARGET_DIR)
 
 TIMER_DIR := timer

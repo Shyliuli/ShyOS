@@ -8,6 +8,7 @@ pub use irq;
 pub use shyos_atomic as atomic;
 pub use shutdown;
 pub use shyos_linux_user_signal as linux_user_signal;
+pub use shyos_pmm as pmm;
 pub use shyos_rand as rand;
 pub use shyos_time as time;
 pub use uart;

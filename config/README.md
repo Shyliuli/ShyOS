@@ -111,6 +111,17 @@ define = "SHYOS_ALLOCATOR_SIMPLE"
 `early_print!`、`early_println!` 固定调用始终存在的 `early_raw_putc` /
 `early_raw_getc` 轮询通道，不受 provider 选择影响。
 
+`lib/pmm` 是 4K 页分配 capability 节点。pmm 可选：不指定任何 `SHYOS_PMM_*`
+时默认 `SHYOS_PMM_NONE`（alloc 后端接管全部可分配内存，`page_memory_init`
+为空实现）；指定多个报错；`SHYOS_BACKEND_LINUX_USER` 只允许 NONE。
+
+- `SHYOS_PMM_FREELIST`（`06page_memory/freelist`）：QEMU virt 的 freelist
+  pmm；`init.c` 按 provider 条件编译把 `heap_init` 截断为开头 32 MiB
+  （`KERNEL_HEAP_SIZE`），其余 `[PMM_START, PMM_START+PMM_SIZE)` 交给 pmm
+
+`pmm.h` 始终声明 `page_memory_init`；`malloc_page` / `free_page` 只在选择了
+实体 provider 时声明，NONE 下调用它们的文件无法编译。
+
 ## Allocator arena (board defines)
 
 `SHYOS_ALLOCATOR_SIMPLE` 的 heap 区间不在 `shyos.mk` 里写死，而在对应 board：
@@ -134,6 +145,11 @@ RAM_BASE   = 0x80000000
 RAM_SIZE   = 256 MiB
 HEAP_START = RAM_BASE + 64 MiB
 HEAP_SIZE  = RAM_SIZE - 64 MiB   # 192 MiB，保证不越出 256 MiB
+
+# 实体 pmm provider 下的内存切分（NONE 时 alloc 接管全部 HEAP_SIZE）：
+KERNEL_HEAP_SIZE = 32 MiB                      # 内核堆
+PMM_START        = HEAP_START + 32 MiB
+PMM_SIZE         = HEAP_SIZE - 32 MiB          # 160 MiB 交给 pmm
 ```
 
 `make run-app` / `run-kernel` 使用 `-m 256M`（可用 `QEMU_MEM=` 覆盖）。

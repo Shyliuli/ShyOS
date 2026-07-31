@@ -132,6 +132,7 @@ dependencies = [
  "shutdown",
  "shyos-atomic",
  "shyos-linux-user-signal",
+ "shyos-pmm",
  "shyos-rand",
  "shyos-time",
  "uart",
@@ -176,6 +177,10 @@ dependencies = [
  "shyos-arch",
  "shyos-stdio",
 ]
+
+[[package]]
+name = "shyos-pmm"
+version = "0.0.0"
 
 [[package]]
 name = "shyos-rand"

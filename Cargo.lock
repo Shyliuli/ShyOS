@@ -25,6 +25,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "361a90feb7004eca4019fb28352a9465666b24f840f5c3cddf0ff13920590b89"
 
 [[package]]
+name = "freelist_pmm"
+version = "0.0.0"
+dependencies = [
+ "shyos-pmm",
+]
+
+[[package]]
 name = "irq"
 version = "0.0.0"
 
@@ -159,10 +166,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "shyos-05task-rust"
+name = "shyos-05timer-rust"
 version = "0.0.0"
 dependencies = [
- "shyos-task",
+ "shyos_05timer",
+]
+
+[[package]]
+name = "shyos-06page-memory-rust"
+version = "0.0.0"
+dependencies = [
+ "shyos-page-memory",
 ]
 
 [[package]]
@@ -171,6 +185,7 @@ version = "0.0.0"
 dependencies = [
  "shyos-basic",
  "shyos-data-structure",
+ "shyos-page-memory",
 ]
 
 [[package]]
@@ -186,6 +201,7 @@ dependencies = [
  "shutdown",
  "shyos-atomic",
  "shyos-linux-user-signal",
+ "shyos-pmm",
  "shyos-rand",
  "shyos-time",
  "uart",
@@ -300,6 +316,19 @@ name = "shyos-obj"
 version = "0.0.0"
 
 [[package]]
+name = "shyos-page-memory"
+version = "0.0.0"
+dependencies = [
+ "freelist_pmm",
+ "shyos-pmm",
+ "shyos_05timer",
+]
+
+[[package]]
+name = "shyos-pmm"
+version = "0.0.0"
+
+[[package]]
 name = "shyos-queue"
 version = "0.0.0"
 dependencies = [
@@ -353,14 +382,6 @@ name = "shyos-stdio"
 version = "0.0.0"
 
 [[package]]
-name = "shyos-task"
-version = "0.0.0"
-dependencies = [
- "shyos-data-structure",
- "shyos-timer",
-]
-
-[[package]]
 name = "shyos-time"
 version = "0.1.0"
 dependencies = [
@@ -402,6 +423,14 @@ dependencies = [
  "shyos-obj",
  "shyos-rawbuf",
  "shyos-result",
+]
+
+[[package]]
+name = "shyos_05timer"
+version = "0.0.0"
+dependencies = [
+ "shyos-data-structure",
+ "shyos-timer",
 ]
 
 [[package]]

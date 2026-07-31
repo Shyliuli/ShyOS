@@ -7,7 +7,8 @@ ShyOS 是一个面向 `riscv64gc-unknown-none-elf` 的分层裸机库（`no_std`
 crate 依赖）共同构建：
 
 - `lib/` 下是编号层
-  （`00arch -> 01log -> 02core -> 03basic -> 04data_structure`）与共享模块
+  （`00arch -> 01log -> 02core -> 03basic -> 04data_structure -> 05timer
+  -> 06page_memory`）与共享模块
   （如 `board`）；
 - `app/` 与 `kernel/` 是链接某一层的最终 image 示例；
 - `tools/layer_graph.py` 负责模块发现、DAG 检查与 `.layer.ld` 闭包计算；
@@ -141,10 +142,12 @@ C/汇编源文件和公开头文件。只有需要脱离 ShyOS Make 构建、由
 02core
 03basic
 04data_structure
+05timer
+06page_memory
 ```
 
 每层必须提供 `layer.toml`，在 `[layer].dependencies` 中声明直接下层。编号层外允许
-存在 `lib/board`、`lib/alloc`、`lib/stdio` 这类无编号共享基础或能力接口模块；共享模块不是
+存在 `lib/board`、`lib/alloc`、`lib/pmm`、`lib/stdio` 这类无编号共享基础或能力接口模块；共享模块不是
 image layer，不生成 `.layer.ld`。
 
 构建前使用 `tools/layer_graph.py` 自动发现全部模块。模块节点由含 `Cargo.toml` 或
@@ -183,10 +186,19 @@ raw UART capability，配置必须选择恰好一个 `SHYOS_UART_*` provider。�
 provider 的 `raw_putc` / `raw_getc`；`early_*` 接口固定调用始终存在的
 `early_raw_putc` / `early_raw_getc` 轮询通道，不受 provider 选择影响。
 
+`lib/pmm` 声明 4K 页分配 capability。与 UART 不同，pmm 可选：配置不指定任何
+`SHYOS_PMM_*` 时 `mk/config.mk` 默认 `SHYOS_PMM_NONE`，`page_memory_init` 为
+capability 模块 Rust 侧的空实现，alloc 后端接管全部可分配内存；指定多个
+`SHYOS_PMM_*` 报错；`SHYOS_BACKEND_LINUX_USER` 只允许 NONE。当前
+`SHYOS_PMM_FREELIST`（`06page_memory/freelist`）提供 freelist 实现（QEMU virt）：
+堆区间只留开头 32 MiB 给 alloc 后端（board 头文件写死 `KERNEL_HEAP_SIZE`），
+`[PMM_START, PMM_START+PMM_SIZE)` 交给 pmm。`pmm.h` 始终声明
+`page_memory_init`；`malloc_page` / `free_page` 只在选择了实体 provider 时声明。
+
 当前 DAG 为：
 
 ```text
-00arch -> 01log -> 02core -> 03basic -> 04data_structure
+00arch -> 01log -> 02core -> 03basic -> 04data_structure -> 05timer -> 06page_memory
 ```
 
 箭头表示从低层能力到高层能力；依赖方向与箭头相反，例如
@@ -232,7 +244,7 @@ provider 的 `raw_putc` / `raw_getc`；`early_*` 接口固定调用始终存在�
 board 与 uart 的 Rust 实现只由 Cargo staticlib 闭包构建，不再生成
 `board_rs.o` 或 `uart.o`。
 
-当前五层都传递包含 `00arch` 的启动入口，可以作为 app/kernel 的最终 image layer。
+所有 image 层（00arch 到 06page_memory）都传递包含 `00arch` 的启动入口，可以作为 app/kernel 的最终 image layer。
 
 为控制镜像体积，C 使用 `-ffunction-sections -fdata-sections`，最终链接使用
 `--gc-sections`。除注册表、启动表等确实要求全部保留的内容外，不使用
@@ -250,6 +262,9 @@ Rust 不使用 `.layer.ld` 表达 crate 依赖。每层提供一个轻量 facade
 - `shyos-basic` 位于 `03basic`，重新导出 shyos-core、obj、result、alloc。
 - `shyos-data-structure` 位于 `04data_structure`，重新导出 shyos-basic、vec、
   string。
+- `shyos_05timer` 位于 `05timer`，重新导出 shyos-data-structure、timer。
+- `shyos-page-memory` 位于 `06page_memory`，重新导出 shyos_05timer、pmm、
+  freelist_pmm。
 
 Rust app 只 path 依赖所需的最高层 facade crate。Cargo 负责编译期依赖和去重，Make
 仍负责最终 ELF 链接。

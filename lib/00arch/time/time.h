@@ -2,7 +2,7 @@
  * 架构时间 ABI：
  *   init_time / get_time —— 各 backend 均提供（开机/初始化后毫秒）
  *   set_timer            —— 仅 QEMU virt 提供底层 deadline（SBI）；
- *                          软件定时与中断/epoll 接线在 05task/timer。
+ *                          软件定时与中断/epoll 接线在 05timer/timer。
  */
 #ifndef SHYOS_TIME_H
 #define SHYOS_TIME_H

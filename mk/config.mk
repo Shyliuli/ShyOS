@@ -41,12 +41,21 @@ SHYOS_DEFINES := $(strip $(SHYOS_DEFINES))
 BACKEND_DEFINES := $(filter SHYOS_BACKEND_%,$(SHYOS_DEFINES))
 BOARD_DEFINES := $(filter BOARD_%,$(SHYOS_DEFINES))
 UART_DEFINES := $(filter SHYOS_UART_%,$(SHYOS_DEFINES))
+PMM_DEFINES := $(filter SHYOS_PMM_%,$(SHYOS_DEFINES))
 
 ifneq ($(words $(BACKEND_DEFINES)),1)
 $(error config must keep exactly one SHYOS_BACKEND_* macro; got: $(BACKEND_DEFINES))
 endif
 ifneq ($(words $(UART_DEFINES)),1)
 $(error config must keep exactly one SHYOS_UART_* macro; got: $(UART_DEFINES))
+endif
+
+# pmm 可选：未指定任何 SHYOS_PMM_* 时默认 NONE（alloc 接管全部可分配内存）。
+ifeq ($(words $(PMM_DEFINES)),0)
+SHYOS_DEFINES += SHYOS_PMM_NONE
+PMM_DEFINES := SHYOS_PMM_NONE
+else ifneq ($(words $(PMM_DEFINES)),1)
+$(error config must keep at most one SHYOS_PMM_* macro; got: $(PMM_DEFINES))
 endif
 
 # ---- common tools ----
@@ -102,6 +111,10 @@ BACKEND := linux_user
 BOARD := none
 ifneq ($(BOARD_DEFINES),)
 $(error SHYOS_BACKEND_LINUX_USER does not use a BOARD_* macro; got: $(BOARD_DEFINES))
+endif
+# linux_user 没有物理页概念：pmm 只能是 NONE，alloc 用 brk/sbrk 接管全部
+ifneq ($(PMM_DEFINES),SHYOS_PMM_NONE)
+$(error SHYOS_BACKEND_LINUX_USER requires SHYOS_PMM_NONE; got: $(PMM_DEFINES))
 endif
 
 ifeq ($(origin CROSS),undefined)

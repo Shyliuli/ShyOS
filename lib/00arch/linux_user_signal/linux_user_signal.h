@@ -1,7 +1,7 @@
 /* linux_user：用信号掩码模拟 CPU 中断屏蔽。
  * 与 00arch/irq 同级，接口类似但不必相同；
  * irq 的 linux_user stub 维持无硬件语义，需要屏蔽语义的模块
- * （如 05task/timer）改用本接口。
+ * （如 05timer/timer）改用本接口。
  */
 #ifndef SHYOS_LINUX_USER_SIGNAL_H
 #define SHYOS_LINUX_USER_SIGNAL_H

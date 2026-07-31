@@ -17,11 +17,11 @@ SHYOS_DEFINES :=
 # ---- backend: keep exactly one block ----
 
 # QEMU virt bare-metal backend
-#SHYOS_DEFINES += SHYOS_BACKEND_QEMU_VIRT
-#SHYOS_DEFINES += BOARD_QEMU_VIRT
+SHYOS_DEFINES += SHYOS_BACKEND_QEMU_VIRT
+SHYOS_DEFINES += BOARD_QEMU_VIRT
 
 # Native Linux user backend
-SHYOS_DEFINES += SHYOS_BACKEND_LINUX_USER
+#SHYOS_DEFINES += SHYOS_BACKEND_LINUX_USER
 
 # ---- allocator ----
 # SHYOS_ALLOCATOR_NONE: 无ALLOCATOR
@@ -41,6 +41,12 @@ SHYOS_DEFINES += SHYOS_UART_POLLING
 # 中断 provider 使用前由 runtime 调用 uart_interupt_init。
 # SHYOS_DEFINES += SHYOS_UART_INTERRUPT
 
+# ---- pmm ----
+# 4K 物理页管理。不指定任何 SHYOS_PMM_* 时默认 NONE：alloc 后端接管全部
+# 可分配内存，page_memory_init 为空实现。实体 provider 仅 QEMU virt 可用：
+# 堆只留开头 32MiB，其余交给 pmm（freelist）。
+# SHYOS_DEFINES += SHYOS_PMM_FREELIST
+
 # ---- scheduler ----
 
 # No scheduler is provided by the selected ShyOS layers.1
@@ -53,6 +59,7 @@ SHYOS_DEFINES += SHYOS_02
 SHYOS_DEFINES += SHYOS_03
 SHYOS_DEFINES += SHYOS_04
 SHYOS_DEFINES += SHYOS_05
+SHYOS_DEFINES += SHYOS_06
 # ..... 
 
 # Future providers can be added directly, for example:
@@ -60,4 +67,6 @@ SHYOS_DEFINES += SHYOS_05
 
 # ---- image layer ----
 
-IMAGE_LAYER := 04data_structure
+
+
+IMAGE_LAYER := 06page_memory

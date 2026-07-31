@@ -135,6 +135,8 @@ dependencies = [
  "irq",
  "shutdown",
  "shyos-atomic",
+ "shyos-linux-user-signal",
+ "shyos-pmm",
  "shyos-rand",
  "shyos-time",
  "uart",
@@ -170,6 +172,7 @@ version = "0.0.0"
 dependencies = [
  "ringbuffer_no_alloc",
  "shyos-error",
+ "shyos-linux-user-trap",
  "shyos-log",
  "shyos-spinlock",
  "shyos-trap",
@@ -226,6 +229,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "shyos-linux-user-signal"
+version = "0.0.0"
+
+[[package]]
+name = "shyos-linux-user-trap"
+version = "0.0.0"
+
+[[package]]
 name = "shyos-log"
 version = "0.0.0"
 dependencies = [
@@ -237,6 +248,10 @@ dependencies = [
 
 [[package]]
 name = "shyos-obj"
+version = "0.0.0"
+
+[[package]]
+name = "shyos-pmm"
 version = "0.0.0"
 
 [[package]]

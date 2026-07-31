@@ -7,13 +7,15 @@ APP_DIR ?= $(SHYOS_ROOT)/app/$(APP_NAME)
 APP_CONFIG := $(APP_DIR)/shyos.mk
 KERN_DIR ?= $(SHYOS_ROOT)/kernel
 KERN_CONFIG := $(KERN_DIR)/shyos.mk
+TEST_NAME ?= test15_qemu_pmm_c
+TEST_DIR ?= $(SHYOS_ROOT)/test/$(TEST_NAME)
 LAYER_TOOL := $(SHYOS_ROOT)/tools/layer_graph.py
 NEW_APP_TOOL := $(SHYOS_ROOT)/tools/new_app.py
 IMAGE_LAYERS := $(shell python3 $(LAYER_TOOL) --root $(SHYOS_ROOT) list --image)
 
 .NOTPARALLEL: all
 
-.PHONY: all app kernel lib clean run-app run-kernel run-app-gdb run-kernel-gdb print-config \
+.PHONY: all app kernel lib clean run-app run-kernel run-app-gdb run-kernel-gdb run-test-gdb print-config \
 	print-kernel-config check-layers dag dag-html analyze host-test \
 	image-test run-image-test qemu-image-test vscode vscode-settings \
 	vscode-compile-commands new-app $(addprefix layer-,$(IMAGE_LAYERS))
@@ -37,6 +39,9 @@ run-app-gdb:
 
 run-kernel-gdb:
 	$(MAKE) -C $(KERN_DIR) run CONFIG=GDB SHYOS_GDB=1
+
+run-test-gdb:
+	$(MAKE) -C $(TEST_DIR) run CONFIG=GDB SHYOS_GDB=1
 
 print-config:
 	$(MAKE) -C $(APP_DIR) print-config

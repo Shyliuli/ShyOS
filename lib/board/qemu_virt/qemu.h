@@ -16,6 +16,14 @@
 #define HEAP_START ((void *)(RAM_BASE + 0x04000000UL)) /* +64 MiB = 0x84000000 */
 #define HEAP_SIZE  (RAM_SIZE - 0x04000000UL) /* 192 MiB = 0x0C000000 */
 
+/*
+ * 内存切分：可分配内存开头 32 MiB 划给内核堆（alloc 后端）；
+ * 实体 pmm provider 接管 [PMM_START, PMM_START+PMM_SIZE) 的剩余全部。
+ */
+#define KERNEL_HEAP_SIZE (32UL * 1024 * 1024)
+#define PMM_START ((void *)((char *)HEAP_START + KERNEL_HEAP_SIZE))
+#define PMM_SIZE  (HEAP_SIZE - KERNEL_HEAP_SIZE)
+
 /* QEMU virt: NS16550A MMIO UART0 */
 #define UART0_BASE 0x10000000UL
 
